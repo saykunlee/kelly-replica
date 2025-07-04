@@ -5,3 +5,29 @@ writable/cache
 writable/session/
 
 z_dashforge/
+
+# 보안 및 환경설정 파일 무시
+.env
+*.env
+app/Config/Database.php
+
+*.key
+*.pem
+*.crt
+*.p12
+*.jks
+*.local.php
+*.secret.php
+secrets/
+private/
+credentials/
+config/secret*
+
+# 로그/캐시/임시 파일 무시
+writable/
+logs/
+*.log
+
+# VSCode 설정 무시
+.vscode/settings.json
+.vscode/sftp.json
