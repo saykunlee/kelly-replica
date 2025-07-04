@@ -1,0 +1,288 @@
+# CodeIgniter 4 Admin 컨트롤러 규칙
+
+## 컨트롤러 계층 구조
+
+이 프로젝트는 다음과 같은 계층적 컨트롤러 구조를 사용합니다:
+
+```
+BaseController (CodeIgniter 기본)
+    ↓
+BaseAdminController (관리자 공통 기능)
+    ↓
+Admin 컨트롤러들 (MemberManageController 등)
+```
+
+## 컨트롤러 작성 규칙
+
+### 기본 구조
+```php
+// ✅ 올바른 Admin 컨트롤러 구조
+<?php
+
+namespace App\Controllers\Admin;
+
+use App\Models\MemberGroupModel;
+use App\Controllers\Base\BaseAdminController;
+
+class MemberManageController extends BaseAdminController
+{
+    public function __construct()
+    {
+        parent::__construct();
+        $this->required_user_login(); // 로그인 체크 필수
+    }
+
+    public function members()
+    {
+        // 모델 인스턴스 생성
+        $memberGroupModel = new MemberGroupModel();
+        $this->data['groups'] = $memberGroupModel->findAllGroups();
+        
+        // 뷰 로드 (기본 레이아웃 사용)
+        return $this->loadDataAndView('/admin/member/members', 'layouts/admin_layout');
+    }
+}
+```
+
+### 네임스페이스 규칙
+- **Admin 컨트롤러**: `App\Controllers\Admin\`
+- **Base 컨트롤러**: `App\Controllers\Base\`
+- **API 컨트롤러**: `App\Controllers\Api\`
+
+### 클래스명 규칙
+- **PascalCase 사용**: `MemberManageController`, `UserManagementController`
+- **의미있는 이름**: 기능을 명확히 표현하는 이름 사용
+- **Controller 접미사**: 모든 컨트롤러 클래스는 `Controller`로 끝나야 함
+
+## BaseAdminController 기능
+
+### 자동 로드되는 기능
+[BaseAdminController.php](mdc:app/Controllers/Base/BaseAdminController.php)에서 제공하는 기능:
+
+```php
+// ✅ 자동으로 로드되는 데이터
+$this->data['sidebar_menu'] = $this->loadMenuData('admin', 'side');
+$this->data['top_menu'] = $this->loadMenuData('admin', 'top');
+$this->data['currentMenu'] = $this->currentMenu;
+$this->data['datatableData'] = $this->loadDatatableData($this->currentMenu['no']);
+```
+
+### 필수 메서드
+```php
+// ✅ 로그인 체크 (모든 Admin 컨트롤러에서 필수)
+public function __construct()
+{
+    parent::__construct();
+    $this->required_user_login();
+}
+
+// ✅ 뷰 로드 메서드
+return $this->loadDataAndView($view_path, $layout);
+```
+
+### 유틸리티 메서드
+```php
+// ✅ Alert 메시지
+$this->alert('메시지', '/redirect/url');
+
+// ✅ 검증 처리
+$validationResult = $this->handleValidation($data, $rules);
+
+// ✅ DataTable 데이터 로드
+$datatableData = $this->loadDatatableData($menu_no);
+```
+
+## 뷰 구조 규칙
+
+### 디렉토리 구조
+```
+app/Views/
+├── admin/                    # 관리자 뷰
+│   ├── member/              # 회원 관리
+│   │   ├── members.php      # 회원 목록
+│   │   └── modal/           # 모달 컴포넌트
+│   ├── board/               # 게시판 관리
+│   └── menu/                # 메뉴 관리
+├── layouts/                  # 레이아웃 파일
+│   ├── admin_layout.php     # 기본 관리자 레이아웃
+│   └── sidebar.php          # 사이드바
+└── components/              # 공통 컴포넌트
+    ├── datatable_list.php   # DataTable 목록
+    └── datatable_settings.php # DataTable 설정
+```
+
+### 뷰 파일 작성 규칙
+```php
+// ✅ 올바른 뷰 구조
+<?= $this->extend($layout) ?>
+
+<?= $this->section('content') ?>
+<div class="container pd-x-0">
+    <div id="app">
+        <!-- Vue.js 앱 컨테이너 -->
+        
+        <!-- 검색 영역 -->
+        <div class="search_area">
+            <!-- 검색 폼 -->
+        </div>
+        
+        <!-- DataTable 컴포넌트 -->
+        <?= $this->include('components/datatable_list') ?>
+        
+        <!-- DataTable 설정 (조건부 표시) -->
+        <div class="<?= $currentMenu['dt_mode'] == 1 ? 'd-block' : 'd-none' ?>">
+            <?= $this->include('components/datatable_settings') ?>
+        </div>
+    </div>
+</div>
+
+<!-- 모달 컴포넌트 -->
+<?= $this->include('admin/member/modal/member_modal') ?>
+
+<script>
+    // Vue.js 앱 정의
+    const mainApp = Vue.createApp({
+        data() {
+            return {
+                // 데이터 정의
+            };
+        },
+        methods: {
+            // 메서드 정의
+        },
+        mounted() {
+            // 초기화 로직
+        }
+    }).mount('#app');
+</script>
+<?= $this->endSection() ?>
+```
+
+## 모델 사용 규칙
+
+### 모델 인스턴스 생성
+```php
+// ✅ 올바른 모델 사용
+public function members()
+{
+    $memberGroupModel = new MemberGroupModel();
+    $this->data['groups'] = $memberGroupModel->findAllGroups();
+    
+    return $this->loadDataAndView('/admin/member/members', 'layouts/admin_layout');
+}
+```
+
+### 데이터 전달
+```php
+// ✅ 컨트롤러에서 뷰로 데이터 전달
+$this->data['groups'] = $memberGroupModel->findAllGroups();
+$this->data['custom_data'] = $someData;
+
+// 뷰에서 사용
+$groups = <?= json_encode($groups) ?>;
+```
+
+## 보안 규칙
+
+### 로그인 체크
+```php
+// ✅ 모든 Admin 컨트롤러에서 필수
+public function __construct()
+{
+    parent::__construct();
+    $this->required_user_login(); // 세션 체크
+}
+```
+
+### 입력값 검증
+```php
+// ✅ 검증 규칙 정의
+$rules = [
+    'username' => 'required|min_length[3]|max_length[50]',
+    'email' => 'required|valid_email',
+    'password' => 'required|min_length[8]'
+];
+
+$validationResult = $this->handleValidation($this->request->getPost(), $rules);
+```
+
+## DataTable 통합
+
+### DataTable 설정
+```php
+// ✅ DataTable 데이터 자동 로드
+// BaseAdminController에서 자동으로 처리됨
+$this->data['datatableData'] = $this->loadDatatableData($this->currentMenu['no']);
+```
+
+### Vue.js와 DataTable 연동
+```php
+// ✅ 뷰에서 DataTable 사용
+<?= $this->include('components/datatable_list') ?>
+
+<script>
+    const mainApp = Vue.createApp({
+        methods: {
+            ini_dt() {
+                datatableApp.ini_dt('list', this.search);
+            }
+        },
+        mounted() {
+            this.ini_dt();
+        }
+    }).mount('#app');
+</script>
+```
+
+## 레이아웃 시스템
+
+### 기본 레이아웃
+[admin_layout.php](mdc:app/Views/layouts/admin_layout.php) 사용:
+- 사이드바 자동 로드
+- 공통 CSS/JS 파일 포함
+- Vue.js, jQuery, DataTables 등 라이브러리 포함
+
+### 레이아웃 확장
+```php
+// ✅ 레이아웃 확장
+return $this->loadDataAndView('/admin/member/members', 'layouts/admin_layout');
+
+// ✅ 다른 레이아웃 사용 가능
+return $this->loadDataAndView('/admin/member/members', 'layouts/admin_top_layout');
+```
+
+## 컴포넌트 시스템
+
+### 공통 컴포넌트
+- [datatable_list.php](mdc:app/Views/components/datatable_list.php) - DataTable 목록
+- [datatable_settings.php](mdc:app/Views/components/datatable_settings.php) - DataTable 설정
+- [breadcrumb.php](mdc:app/Views/components/breadcrumb.php) - 브레드크럼
+
+### 컴포넌트 사용
+```php
+// ✅ 컴포넌트 포함
+<?= $this->include('components/datatable_list') ?>
+<?= $this->include('admin/member/modal/member_modal') ?>
+```
+
+## 주의사항
+
+1. **로그인 체크**: 모든 Admin 컨트롤러에서 `required_user_login()` 호출 필수
+2. **데이터 전달**: `$this->data` 배열을 통해 뷰로 데이터 전달
+3. **뷰 로드**: `loadDataAndView()` 메서드 사용으로 일관성 유지
+4. **네임스페이스**: 올바른 네임스페이스 사용 필수
+5. **보안**: 입력값 검증 및 SQL Injection 방지
+6. **성능**: 불필요한 데이터베이스 쿼리 최소화
+
+## 관련 파일
+
+- [BaseAdminController.php](mdc:app/Controllers/Base/BaseAdminController.php) - 관리자 기본 컨트롤러
+- [MemberManageController.php](mdc:app/Controllers/Admin/MemberManageController.php) - 회원 관리 컨트롤러 예시
+- [admin_layout.php](mdc:app/Views/layouts/admin_layout.php) - 관리자 기본 레이아웃
+- [datatable_list.php](mdc:app/Views/components/datatable_list.php) - DataTable 컴포넌트
+- [MemberGroupModel.php](mdc:app/Models/MemberGroupModel.php) - 모델 예시
+---
+description: CodeIgniter 4 Admin 컨트롤러 구조와 패턴 정의
+globs: app/Controllers/Admin/**/*.php,app/Controllers/Base/**/*.php,app/Views/admin/**/*.php
+alwaysApply: true
+---

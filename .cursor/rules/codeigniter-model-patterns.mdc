@@ -1,0 +1,376 @@
+# CodeIgniter 4 모델 패턴 규칙
+
+## 모델 계층 구조
+
+이 프로젝트는 다음과 같은 모델 계층 구조를 사용합니다:
+
+```
+Model (CodeIgniter 기본)
+    ↓
+BaseModel (공통 기능)
+    ↓
+특정 모델들 (MemberModel, MenuModel 등)
+```
+
+## BaseModel 기능
+
+### 기본 구조
+[BaseModel.php](mdc:app/Models/BaseModel.php)에서 제공하는 공통 기능:
+
+```php
+// ✅ BaseModel 기본 구조
+class BaseModel extends Model
+{
+    protected $allowedFields = [];
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->initializeAllowedFields();
+    }
+
+    protected function initializeAllowedFields()
+    {
+        if ($this->table) {
+            $this->allowedFields = $this->db->getFieldNames($this->table);
+        }
+    }
+}
+```
+
+### 공통 메서드
+```php
+// ✅ 데이터 목록 조회 (페이징 포함)
+public function getListWithDetails($table, $where, $orderColumn, $orderDirection, $start, $length)
+{
+    $builder = $this->db->table($table);
+
+    // WHERE 조건 추가
+    foreach ($where as $key => $value) {
+        if (is_array($value)) {
+            $builder->whereIn($key, $value);
+        } else {
+            $builder->where($key, $value);
+        }
+    }
+    
+    if ($length != -1) {
+        $builder->limit($length, $start);
+    }
+
+    $builder->orderBy($orderColumn, $orderDirection);
+    $data = $builder->get()->getResultArray();
+
+    return [
+        'list' => $data,
+        'total' => $this->countFilteredResults($table, $where)
+    ];
+}
+
+// ✅ 필터링된 결과 수 계산
+public function countFilteredResults($table, $where)
+{
+    $builder = $this->db->table($table);
+
+    foreach ($where as $key => $value) {
+        if (is_array($value)) {
+            $builder->whereIn($key, $value);
+        } else {
+            $builder->where($key, $value);
+        }
+    }
+
+    return $builder->countAllResults(true);
+}
+
+// ✅ 테이블 동적 변경
+public function setTable($table)
+{
+    $this->table = $table;
+    $this->initializeAllowedFields();
+    return $this;
+}
+
+// ✅ 상세 정보 조회
+public function getDetails($table, $id_column, $id_value)
+{
+    return $this->db->table($table)
+        ->select('*')
+        ->where($id_column, $id_value)
+        ->get()
+        ->getRowArray();
+}
+```
+
+## 특정 모델 작성 규칙
+
+### 기본 구조
+```php
+// ✅ 올바른 모델 구조
+<?php
+
+namespace App\Models;
+
+class MemberModel extends BaseModel
+{
+    protected $table = 'member';
+    protected $primaryKey = 'mem_id';
+
+    // 특정 모델 메서드들
+    public function getMemberListWithDetails($where, $orderBy, $orderDir, $start, $length)
+    {
+        $query = $this->db->table('member')
+            ->select('*')
+            ->where($where)
+            ->orderBy($orderBy, $orderDir);
+
+        if ($length != -1) {
+            $query->limit($length, $start);
+        }
+
+        $result = $query->get();
+
+        return [
+            'total_rows' => $result->getNumRows(),
+            'list' => $result->getResultArray()
+        ];
+    }
+}
+```
+
+### 네임스페이스 규칙
+- **모든 모델**: `App\Models\`
+- **PascalCase 사용**: `MemberModel`, `MenuModel`
+- **Model 접미사**: 모든 모델 클래스는 `Model`로 끝나야 함
+
+## 컨트롤러에서 모델 사용
+
+### Admin 컨트롤러에서 사용
+```php
+// ✅ Admin 컨트롤러에서 모델 사용
+public function members()
+{
+    $memberGroupModel = new MemberGroupModel();
+    $this->data['groups'] = $memberGroupModel->findAllGroups();
+    
+    return $this->loadDataAndView('/admin/member/members', 'layouts/admin_layout');
+}
+```
+
+### API 컨트롤러에서 사용
+```php
+// ✅ API 컨트롤러에서 모델 사용
+public function getMemberSearchList()
+{
+    $model = new MemberModel();
+    
+    // 검색 조건 설정
+    $where = [
+        'mem_denied' => 0,
+        'mem_is_admin' => $postData->search->mem_is_admin ?? ''
+    ];
+    
+    // 데이터 조회
+    $data = $model->getListMemberWithDetails('member', $where, $orderColumn, $orderDirection, $start, $length);
+    
+    return $this->respond([
+        'draw' => intval($draw),
+        'recordsTotal' => intval($totalRecords),
+        'recordsFiltered' => intval($totalFiltered),
+        'data' => $data['list']
+    ]);
+}
+```
+
+## 데이터베이스 쿼리 패턴
+
+### Query Builder 사용
+```php
+// ✅ Query Builder를 사용한 복잡한 쿼리
+public function getMemberGroups($mem_id = null)
+{
+    $builder = $this->db->table($this->table)
+        ->select('member_group_member.mgr_id, member_group_member.mem_id, member_group.mgr_title')
+        ->join('member_group', 'member_group.mgr_id = member_group_member.mgr_id', 'left');
+
+    if ($mem_id !== null) {
+        $builder->where('member_group_member.mem_id', $mem_id);
+    }
+
+    return $builder->get()->getResultArray();
+}
+```
+
+### 특수 조건 처리
+```php
+// ✅ 배열 조건 처리 (IN 절)
+if (is_array($value)) {
+    $builder->whereIn($key, $value);
+} else {
+    $builder->where($key, $value);
+}
+
+// ✅ LIKE 검색
+$where['mem_username LIKE'] = '%' . $searchValue . '%';
+
+// ✅ FIND_IN_SET 함수 사용
+if ($key === 'mem_personal_tags') {
+    $builder->groupStart();
+    foreach ($value as $tag) {
+        $builder->orWhere("FIND_IN_SET('$tag', mem_personal_tags) > 0");
+    }
+    $builder->groupEnd();
+}
+```
+
+## 보안 규칙
+
+### SQL Injection 방지
+```php
+// ✅ 안전한 쿼리 작성
+public function getMemberDetails($mem_id)
+{
+    return $this->db->table($this->table)
+        ->select('*')
+        ->where('mem_id', $mem_id) // 자동 이스케이프
+        ->get()
+        ->getRowArray();
+}
+
+// ✅ 검증 메서드
+public function isUserIdAvailable($userId)
+{
+    $memberExists = $this->where('mem_userid', $userId)->countAllResults() > 0;
+    $memberUserIdExists = $this->db->table('member_userid')->where('mem_userid', $userId)->countAllResults() > 0;
+    return !$memberExists && !$memberUserIdExists;
+}
+```
+
+### 비밀번호 해싱
+```php
+// ✅ 비밀번호 해싱
+public function resetPassword($mem_id, $newPassword)
+{
+    $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+    return $this->update($mem_id, ['mem_password' => $hashedPassword]);
+}
+```
+
+## 트랜잭션 처리
+
+### 트랜잭션 사용
+```php
+// ✅ 트랜잭션 처리
+public function createMember($postData)
+{
+    $db = \Config\Database::connect();
+    $db->transStart();
+
+    try {
+        // 회원 생성
+        $memberId = $this->insert($postData);
+        
+        // 회원 그룹 추가
+        if (isset($postData['group_id'])) {
+            $memberGroupModel = new MemberGroupModel();
+            $memberGroupModel->replaceMemberGroups($memberId, $postData['group_id']);
+        }
+        
+        // 추가 테이블 처리
+        $this->addMemberUserId($memberId, $postData['mem_userid']);
+        
+        $db->transComplete();
+        
+        if ($db->transStatus() === false) {
+            return ['status' => 'error', 'message' => '트랜잭션 실패'];
+        }
+        
+        return ['status' => 'success', 'id' => $memberId];
+    } catch (\Exception $e) {
+        $db->transRollback();
+        return ['status' => 'error', 'message' => $e->getMessage()];
+    }
+}
+```
+
+## 페이징 및 정렬
+
+### DataTable 호환 페이징
+```php
+// ✅ DataTable 호환 페이징
+public function getMemberListWithDetails($where, $orderBy, $orderDir, $start, $length)
+{
+    $query = $this->db->table('member')
+        ->select('*')
+        ->where($where)
+        ->orderBy($orderBy, $orderDir);
+
+    if ($length != -1) {
+        $query->limit($length, $start);
+    }
+
+    $result = $query->get();
+
+    return [
+        'total_rows' => $result->getNumRows(),
+        'list' => $result->getResultArray()
+    ];
+}
+```
+
+## 모델 메서드 분류
+
+### 조회 메서드
+```php
+// ✅ 기본 조회 메서드
+public function getMemberDetails($mem_id)
+public function getByEmail($mem_email, $select = '*')
+public function getByUserid($mem_userid, $select = '*')
+public function getByBoth($identifier, $select = '*')
+```
+
+### 검증 메서드
+```php
+// ✅ 중복 검증 메서드
+public function isUserIdAvailable($userId)
+public function isEmailAvailable($email)
+public function isNicknameAvailable($nickname)
+```
+
+### 수정 메서드
+```php
+// ✅ 데이터 수정 메서드
+public function resetPassword($mem_id, $newPassword)
+public function updateLoginLog($data)
+public function addMemberUserId($memberId, $memUserId)
+```
+
+### 통계 메서드
+```php
+// ✅ 통계 조회 메서드
+public function countMemberFilteredResults($table, $where)
+public function getLoginLogs($select, $where)
+```
+
+## 주의사항
+
+1. **테이블명 설정**: 모든 모델에서 `$table` 속성 필수 설정
+2. **기본키 설정**: `$primaryKey` 속성으로 기본키 지정
+3. **allowedFields**: BaseModel에서 자동으로 설정되지만 필요시 재정의
+4. **네임스페이스**: 모든 모델은 `App\Models\` 네임스페이스 사용
+5. **보안**: SQL Injection 방지를 위해 Query Builder 사용
+6. **트랜잭션**: 복잡한 데이터 조작 시 트랜잭션 사용
+7. **성능**: 불필요한 쿼리 최소화 및 인덱스 활용
+
+## 관련 파일
+
+- [BaseModel.php](mdc:app/Models/BaseModel.php) - 기본 모델 클래스
+- [MemberModel.php](mdc:app/Models/MemberModel.php) - 회원 모델 예시
+- [MemberGroupModel.php](mdc:app/Models/MemberGroupModel.php) - 회원 그룹 모델
+- [BaseApiController.php](mdc:app/Controllers/Base/BaseApiController.php) - API 컨트롤러에서 모델 사용
+- [MemberApi.php](mdc:app/Controllers/Api/MemberApi.php) - 회원 API 컨트롤러
+---
+description: CodeIgniter 4 프로젝트의 모델 패턴과 사용법 정의
+globs: app/Models/**/*.php,app/Controllers/**/*.php
+alwaysApply: true
+---

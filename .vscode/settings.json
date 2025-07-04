@@ -1,0 +1,7 @@
+{
+    "phpserver.ip": "localhost",
+    "phpserver.port": 3000,
+    "phpserver.relativePath": "public",
+    "phpserver.autoOpenOnReload": true,
+    "phpserver.browser": "chrome"
+}

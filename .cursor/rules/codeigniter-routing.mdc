@@ -1,0 +1,229 @@
+# CodeIgniter 4 라우팅 규칙
+
+## 라우팅 시스템 개요
+
+이 프로젝트는 CodeIgniter 4 기반으로 다음과 같은 라우팅 시스템을 사용합니다:
+
+1. **API 동적 라우팅**: `/api/{controller}/{method}` 형식
+2. **데이터베이스 기반 라우팅**: 메뉴 테이블에서 URL과 라우트 정보를 동적 생성
+3. **계층적 메뉴 구조**: 부모-자식 관계를 가진 메뉴 시스템
+
+## API 라우팅 규칙
+
+### URL 패턴
+```php
+// ✅ 올바른 API 라우팅 패턴
+$routes->get('/api/(:segment)', 'RouteHandler::handle/$1');
+$routes->post('/api/(:segment)/(:segment)', 'RouteHandler::handle/$1/$2');
+$routes->get('/api/(:segment)/(:segment)', 'RouteHandler::handle/$1/$2');
+```
+
+### 컨트롤러 명명 규칙
+- **URL**: kebab-case 사용 (예: `user-management`)
+- **클래스명**: PascalCase 사용 (예: `UserManagement`)
+- **네임스페이스**: `App\Controllers\Api\` 접두사 필수
+
+```php
+// ✅ 올바른 컨트롤러 구조
+namespace App\Controllers\Api;
+
+class UserManagement extends Controller
+{
+    public function getUserList() { /* ... */ }
+    public function createUser() { /* ... */ }
+}
+
+// ❌ 잘못된 컨트롤러 구조
+class user_management extends Controller // snake_case 사용 금지
+{
+    public function get_user_list() { /* ... */ } // snake_case 메서드명 금지
+}
+```
+
+### RouteHandler 변환 규칙
+[RouteHandler.php](mdc:app/Controllers/RouteHandler.php)에서 자동 변환:
+- `user-management` → `UserManagement` (PascalCase)
+- `get-user-list` → `getUserList` (camelCase)
+
+## 데이터베이스 기반 라우팅
+
+### 메뉴 테이블 구조
+```sql
+-- menus 테이블 필수 필드
+CREATE TABLE menus (
+    no INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    url VARCHAR(255) NOT NULL,           -- URL 경로 (예: /admin/users)
+    route VARCHAR(255) NOT NULL,         -- 컨트롤러::메서드 (예: Admin\UserController::index)
+    is_active TINYINT(1) DEFAULT 1,
+    is_deleted TINYINT(1) DEFAULT 0,
+    parent_id INT NULL,                  -- 계층 구조용
+    category_id INT NOT NULL,
+    `order` INT DEFAULT 0
+);
+```
+
+### 동적 라우트 생성
+```php
+// ✅ 올바른 동적 라우트 생성
+$menuModel = new MenuModel();
+$menus = $menuModel->where('is_active', 1)->findAll();
+
+foreach ($menus as $menu) {
+    if (!empty($menu['url']) && !empty($menu['route'])) {
+        $safeUrl = preg_quote($menu['url'], '#');
+        $routes->get($safeUrl, $menu['route']);
+        $routes->post($safeUrl, $menu['route']);
+        
+        // 파라미터 지원
+        $routes->get($safeUrl . '/(:num)', $menu['route'] . '/$1');
+        $routes->post($safeUrl . '/(:num)', $menu['route'] . '/$1');
+    }
+}
+```
+
+## 컨트롤러 작성 규칙
+
+### 기본 구조
+```php
+// ✅ 올바른 컨트롤러 구조
+namespace App\Controllers\Api;
+
+use CodeIgniter\Controller;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class ExampleController extends Controller
+{
+    public function __construct()
+    {
+        // 초기화 로직
+    }
+    
+    public function index()
+    {
+        // 기본 메서드
+        return $this->response->setJSON(['status' => 'success']);
+    }
+    
+    public function getData($id = null)
+    {
+        // 파라미터 처리
+        if (!$id) {
+            return $this->response->setJSON(['error' => 'ID required']);
+        }
+        
+        // 비즈니스 로직
+        return $this->response->setJSON(['data' => $data]);
+    }
+}
+```
+
+### 응답 형식
+```php
+// ✅ 올바른 응답 형식
+public function getUsers()
+{
+    try {
+        $users = $this->userModel->findAll();
+        return $this->response
+            ->setStatusCode(200)
+            ->setJSON([
+                'status' => 'success',
+                'data' => $users,
+                'count' => count($users)
+            ]);
+    } catch (\Exception $e) {
+        return $this->response
+            ->setStatusCode(500)
+            ->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+    }
+}
+```
+
+## 보안 규칙
+
+### 입력값 검증
+```php
+// ✅ 올바른 입력값 검증
+public function createUser()
+{
+    $rules = [
+        'username' => 'required|min_length[3]|max_length[50]|is_unique[users.username]',
+        'email' => 'required|valid_email|is_unique[users.email]',
+        'password' => 'required|min_length[8]'
+    ];
+    
+    if (!$this->validate($rules)) {
+        return $this->response
+            ->setStatusCode(400)
+            ->setJSON([
+                'status' => 'error',
+                'errors' => $this->validator->getErrors()
+            ]);
+    }
+    
+    // 검증된 데이터로 처리
+    $validData = $this->validator->getValidated();
+}
+```
+
+### SQL Injection 방지
+```php
+// ✅ 안전한 쿼리 작성
+public function getUserById($id)
+{
+    // CodeIgniter Query Builder 사용 (자동 이스케이프)
+    $user = $this->db->table('users')
+        ->where('id', $id)
+        ->get()
+        ->getRowArray();
+        
+    // 또는 Model 사용
+    $user = $this->userModel->find($id);
+}
+
+// ❌ 위험한 쿼리 작성
+public function getUserById($id)
+{
+    // 직접 SQL 사용 시 반드시 이스케이프
+    $sql = "SELECT * FROM users WHERE id = ?";
+    $user = $this->db->query($sql, [$id])->getRowArray();
+}
+```
+
+## 라우트 테스트 규칙
+
+### 단위 테스트
+```php
+// ✅ 라우트 테스트 예시
+public function testApiRoute()
+{
+    $result = $this->get('/api/user-management/get-users');
+    
+    $this->assertTrue($result->isOK());
+    $this->assertStringContainsString('status', $result->getBody());
+}
+```
+
+## 주의사항
+
+1. **URL 패턴**: 항상 `preg_quote()` 사용하여 안전한 URL 패턴 생성
+2. **메서드 존재 확인**: RouteHandler에서 `method_exists()` 체크 필수
+3. **로그 기록**: 라우팅 과정에서 적절한 로그 기록
+4. **에러 처리**: 404 에러 시 적절한 예외 처리
+5. **성능**: 데이터베이스 쿼리 최적화 및 캐싱 고려
+
+## 관련 파일
+
+- [Routes.php](mdc:app/Config/Routes.php) - 메인 라우트 설정
+- [RouteHandler.php](mdc:app/Controllers/RouteHandler.php) - API 동적 라우팅 처리
+- [MenuModel.php](mdc:app/Models/MenuModel.php) - 메뉴 데이터 관리
+- [TopMenuModel.php](mdc:app/Models/TopMenuModel.php) - 상단 메뉴 데이터 관리
+---
+description: CodeIgniter 4 프로젝트의 라우팅 규칙과 패턴 정의
+globs: app/Config/Routes.php,app/Controllers/**/*.php,app/Models/**/*.php
+alwaysApply: true
+---

@@ -1,0 +1,27 @@
+{
+  
+  "database": {
+    "connections": {
+      "local": {
+        "type": "mariadb",
+        "host": "localhost",
+        "port": 3306,
+        "database": "kelly",
+        "username": "root",
+        "password": "uny2023",
+        "ssl": false,
+        "contextEnabled": true,
+        "autoConnect": true,
+        "schemaSync": true
+      }
+    },
+    "contextSettings": {
+      "includeTables": true,
+      "includeViews": true,
+      "includeProcedures": true,
+      "includeFunctions": true,
+      "maxRows": 100,
+      "refreshInterval": 300
+    }
+  }
+}
