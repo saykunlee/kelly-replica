@@ -409,4 +409,3 @@ cli-name --help
 npm unlink
 ```
 
-이 규칙들은 Node.js CLI 툴 개발 시 일관성과 품질을 보장합니다.
