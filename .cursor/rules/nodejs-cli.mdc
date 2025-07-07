@@ -1,0 +1,412 @@
+# Node.js CLI 툴 개발 규칙
+
+## CLI 구조 및 패턴
+
+### 기본 CLI 구조
+```javascript
+#!/usr/bin/env node
+
+const { Command } = require('commander');
+const program = new Command();
+
+program
+  .name('cli-name')
+  .description('CLI 설명')
+  .version('1.0.0');
+
+// 명령어 등록
+program
+  .command('command-name <required-arg>')
+  .description('명령어 설명')
+  .option('-f, --flag', '옵션 설명')
+  .action(async (arg, options) => {
+    // 명령어 로직
+  });
+
+program.parse();
+```
+
+### 명령어 모듈화
+```javascript
+// src/commands/commandName.js
+async function commandName(arg, options) {
+  try {
+    // 명령어 로직
+  } catch (error) {
+    console.error('오류:', error.message);
+    process.exit(1);
+  }
+}
+
+module.exports = { commandName };
+```
+
+### 유틸리티 모듈화
+```javascript
+// src/utils/utilityName.js
+async function utilityFunction(param) {
+  // 유틸리티 로직
+  return result;
+}
+
+module.exports = {
+  utilityFunction
+};
+```
+
+## 패키지 설정
+
+### package.json 구조
+```json
+{
+  "name": "cli-name",
+  "version": "1.0.0",
+  "description": "CLI 설명",
+  "main": "src/index.js",
+  "bin": {
+    "cli-name": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "chalk": "^4.1.2",
+    "ora": "^7.0.1"
+  }
+}
+```
+
+### 글로벌 설치
+```bash
+npm link  # 개발 중 글로벌 등록
+npm unlink  # 글로벌 등록 해제
+```
+
+## 사용자 경험 (UX)
+
+### 색상 및 스타일링
+```javascript
+const chalk = require('chalk');
+
+// 색상 사용
+console.log(chalk.blue('정보 메시지'));
+console.log(chalk.green('성공 메시지'));
+console.log(chalk.red('오류 메시지'));
+console.log(chalk.yellow('경고 메시지'));
+console.log(chalk.gray('부가 정보'));
+```
+
+### 진행률 표시
+```javascript
+const ora = require('ora');
+
+const spinner = ora('작업 중...').start();
+try {
+  // 작업 수행
+  spinner.succeed('작업 완료');
+} catch (error) {
+  spinner.fail('작업 실패');
+}
+```
+
+### 사용자 입력
+```javascript
+const inquirer = require('inquirer');
+
+const answers = await inquirer.prompt([
+  {
+    type: 'input',
+    name: 'name',
+    message: '이름을 입력하세요:',
+    validate: (input) => input.length > 0 || '이름을 입력해주세요'
+  }
+]);
+```
+
+## 설정 관리
+
+### 환경 변수
+```javascript
+const dotenv = require('dotenv');
+dotenv.config();
+
+const config = {
+  apiKey: process.env.API_KEY,
+  host: process.env.HOST || 'localhost'
+};
+```
+
+### 설정 파일
+```javascript
+// config.js
+module.exports = {
+  development: {
+    host: 'localhost',
+    port: 3000
+  },
+  production: {
+    host: 'example.com',
+    port: 80
+  }
+};
+```
+
+## 에러 처리
+
+### 표준 에러 처리
+```javascript
+try {
+  // 위험한 작업
+} catch (error) {
+  console.error(chalk.red('오류가 발생했습니다:'), error.message);
+  process.exit(1);
+}
+```
+
+### 사용자 친화적 에러
+```javascript
+function handleError(error, context = '') {
+  const message = context ? `${context}: ${error.message}` : error.message;
+  console.error(chalk.red('❌ 오류:'), message);
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.error(chalk.gray('스택 트레이스:'), error.stack);
+  }
+  
+  process.exit(1);
+}
+```
+
+## 파일 시스템 작업
+
+### 파일 읽기/쓰기
+```javascript
+const fs = require('fs').promises;
+const path = require('path');
+
+async function readFile(filePath) {
+  try {
+    return await fs.readFile(filePath, 'utf8');
+  } catch (error) {
+    throw new Error(`파일을 읽을 수 없습니다: ${filePath}`);
+  }
+}
+
+async function writeFile(filePath, content) {
+  try {
+    await fs.writeFile(filePath, content, 'utf8');
+  } catch (error) {
+    throw new Error(`파일을 쓸 수 없습니다: ${filePath}`);
+  }
+}
+```
+
+### 디렉토리 작업
+```javascript
+async function ensureDirectory(dirPath) {
+  try {
+    await fs.mkdir(dirPath, { recursive: true });
+  } catch (error) {
+    throw new Error(`디렉토리를 생성할 수 없습니다: ${dirPath}`);
+  }
+}
+
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+```
+
+## 외부 API 연동
+
+### HTTP 요청
+```javascript
+const axios = require('axios');
+
+async function apiRequest(url, options = {}) {
+  try {
+    const response = await axios({
+      url,
+      method: 'GET',
+      timeout: 10000,
+      ...options
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(`API 요청 실패: ${error.message}`);
+  }
+}
+```
+
+### FTP 연동
+```javascript
+const ftp = require('basic-ftp');
+
+async function uploadToFtp(files, config) {
+  const client = new ftp.Client();
+  
+  try {
+    await client.access({
+      host: config.host,
+      user: config.user,
+      password: config.password,
+      port: config.port || 21
+    });
+    
+    for (const file of files) {
+      await client.uploadFrom(file.localPath, file.remotePath);
+    }
+  } finally {
+    client.close();
+  }
+}
+```
+
+## 테스트
+
+### 단위 테스트
+```javascript
+// __tests__/command.test.js
+const { commandName } = require('../src/commands/commandName');
+
+describe('commandName', () => {
+  test('정상 동작', async () => {
+    const result = await commandName('test-arg');
+    expect(result).toBeDefined();
+  });
+  
+  test('오류 처리', async () => {
+    await expect(commandName('invalid-arg')).rejects.toThrow();
+  });
+});
+```
+
+## 보안 고려사항
+
+### 입력값 검증
+```javascript
+function validateInput(input, rules) {
+  if (!input || typeof input !== 'string') {
+    throw new Error('유효하지 않은 입력입니다.');
+  }
+  
+  if (rules.minLength && input.length < rules.minLength) {
+    throw new Error(`최소 ${rules.minLength}자 이상 입력해주세요.`);
+  }
+  
+  if (rules.pattern && !rules.pattern.test(input)) {
+    throw new Error('입력 형식이 올바르지 않습니다.');
+  }
+}
+```
+
+### 민감 정보 처리
+```javascript
+// 환경 변수 사용
+const config = {
+  apiKey: process.env.API_KEY,
+  password: process.env.PASSWORD
+};
+
+// 설정 파일에서 민감 정보 제외
+const publicConfig = {
+  host: 'example.com',
+  port: 3000
+  // apiKey는 환경 변수에서 로드
+};
+```
+
+## 성능 최적화
+
+### 비동기 처리
+```javascript
+// 병렬 처리
+const results = await Promise.all(
+  files.map(file => processFile(file))
+);
+
+// 순차 처리
+for (const file of files) {
+  await processFile(file);
+}
+```
+
+### 메모리 관리
+```javascript
+// 스트림 사용 (대용량 파일)
+const fs = require('fs');
+const readStream = fs.createReadStream('large-file.txt');
+const writeStream = fs.createWriteStream('output.txt');
+
+readStream.pipe(writeStream);
+```
+
+## 문서화
+
+### JSDoc 주석
+```javascript
+/**
+ * 파일을 처리하는 함수
+ * @param {string} filePath - 파일 경로
+ * @param {Object} options - 처리 옵션
+ * @param {boolean} options.verbose - 상세 로그 출력
+ * @returns {Promise<Object>} 처리 결과
+ * @throws {Error} 파일이 존재하지 않을 때
+ */
+async function processFile(filePath, options = {}) {
+  // 함수 로직
+}
+```
+
+### README 작성
+```markdown
+# CLI 이름
+
+CLI 설명
+
+## 설치
+
+```bash
+npm install -g cli-name
+```
+
+## 사용법
+
+```bash
+cli-name command <argument> [options]
+```
+
+## 옵션
+
+- `-v, --verbose`: 상세 정보 출력
+- `-d, --dry-run`: 시뮬레이션 모드
+
+## 예시
+
+```bash
+cli-name process file.txt --verbose
+```
+```
+
+## 배포
+
+### npm 배포
+```bash
+npm login
+npm publish
+```
+
+### 로컬 테스트
+```bash
+npm link
+cli-name --help
+npm unlink
+```
+
+이 규칙들은 Node.js CLI 툴 개발 시 일관성과 품질을 보장합니다.
