@@ -33,53 +33,47 @@ async function getChangedFiles(issue) {
 }
 
 /**
- * 특정 이슈 번호와 관련된 커밋에서 변경된 파일 목록과 상태를 가져옵니다.
+ * 특정 이슈 번호와 관련된 커밋 범위에서 변경된 파일 목록과 상태를 가져옵니다.
  * @param {string} issue - 이슈 번호
  * @returns {Promise<Array>} 변경된 파일 목록과 상태
  */
 async function getChangedFilesWithStatus(issue) {
   try {
-    // git log --grep="#123" --name-status --pretty=format:"" | sort | uniq
-    const command = `git log --grep="#${issue}" --name-status --pretty=format:""`;
-    
-    const output = execSync(command, { 
-      encoding: 'utf8',
-      cwd: process.cwd()
-    });
-    
-    // 빈 줄 제거하고 파일 목록과 상태 파싱
-    const lines = output
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
-    
-    const fileStatusMap = new Map();
-    
-    lines.forEach(line => {
-      const parts = line.split('\t');
-      if (parts.length === 2) {
-        const status = parts[0];
-        const file = parts[1];
-        
-        // 파일이 이미 있으면 가장 최근 상태를 유지
-        if (!fileStatusMap.has(file)) {
-          fileStatusMap.set(file, status);
-        }
+    // 1. 이슈 번호가 포함된 커밋 해시 목록 추출
+    const logCmd = `git log --grep="#${issue}" --pretty=format:"%H"`;
+    const hashes = execSync(logCmd, { encoding: 'utf8', cwd: process.cwd() })
+      .split('\n').map(h => h.trim()).filter(Boolean);
+
+    if (hashes.length === 0) return [];
+
+    // 2. 가장 오래된 커밋과 최신 커밋 범위로 diff
+    const first = hashes[hashes.length - 1];
+    const last = hashes[0];
+    // rename/copy detection 옵션 추가
+    const diffCmd = `git diff -M -C --find-renames=90% --find-copies=90% --name-status ${first}^ ${last}`;
+    let output = '';
+    try {
+      output = execSync(diffCmd, { encoding: 'utf8', cwd: process.cwd() });
+    } catch (diffError) {
+      // renameLimit 경고 감지 시 안내
+      if (diffError.stderr && diffError.stderr.includes('exhaustive rename detection was skipped')) {
+        console.log('\u26A0\uFE0F diff.renameLimit 경고: 대용량 리포지토리에서는 git config diff.renameLimit 99999 명령을 실행하세요.');
       }
+      throw diffError;
+    }
+
+    // 3. 결과 파싱
+    const lines = output.split('\n').map(line => line.trim()).filter(Boolean);
+    const filesWithStatus = lines.map(line => {
+      const [status, ...rest] = line.split('\t');
+      // rename/copy는 파일명이 2개
+      const file = (status.startsWith('R') || status.startsWith('C')) ? rest[1] : rest[0];
+      return { file, status: normalizeStatus(status[0]) };
     });
-    
-    // Map을 배열로 변환
-    const filesWithStatus = Array.from(fileStatusMap.entries()).map(([file, status]) => ({
-      file,
-      status: normalizeStatus(status)
-    }));
-    
+
     return filesWithStatus;
   } catch (error) {
-    if (error.status === 1) {
-      // git log에서 결과가 없는 경우 (일반적인 상황)
-      return [];
-    }
+    if (error.status === 1) return [];
     throw new Error(`Git 명령어 실행 중 오류: ${error.message}`);
   }
 }
