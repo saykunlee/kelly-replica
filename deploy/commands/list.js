@@ -1,4 +1,3 @@
-const { execSync } = require('child_process');
 const chalk = require('chalk');
 const { getChangedFilesWithStatus, calculateFileStats } = require('../utils/git');
 const { filterIgnoredFiles } = require('../utils/filter');
@@ -140,4 +139,4 @@ function getStatusText(status) {
   }
 }
 
-module.exports = { listCommand }; 
+module.exports = { listCommand };

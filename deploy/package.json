@@ -2,14 +2,14 @@
   "name": "kelly-deploy-cli",
   "version": "1.0.0",
   "description": "GitHub 이슈 기반 자동 배포 CLI 툴",
-  "main": "src/index.js",
+  "main": "index.js",
   "bin": {
-    "kelly-deploy": "./src/index.js"
+    "kelly-deploy": "./index.js"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node index.js",
     "test": "jest",
-    "lint": "eslint src/"
+    "lint": "eslint ."
   },
   "keywords": [
     "deployment",
