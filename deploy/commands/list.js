@@ -1,16 +1,21 @@
 const chalk = require('chalk');
 const { getChangedFilesWithStatus, calculateFileStats } = require('../utils/git');
 const { filterIgnoredFiles } = require('../utils/filter');
+const { createSpinner, succeedSpinner, failSpinner } = require('../utils/progress');
+const { handleError, showInfo, showWarning } = require('../utils/errorHandler');
 
-async function listCommand(issue) {
+async function listCommand(issue, options = {}) {
+  const spinner = createSpinner('변경된 파일 목록을 가져오는 중...');
+  
   try {
-    console.log(chalk.blue(`📋 이슈 #${issue}의 변경된 파일 목록을 가져오는 중...`));
+    spinner.start();
     
     // 변경된 파일 목록과 상태 가져오기
     const filesWithStatus = await getChangedFilesWithStatus(issue);
     
     if (filesWithStatus.length === 0) {
-      console.log(chalk.yellow(`⚠ 해당 이슈와 관련된 변경된 파일이 없습니다.`));
+      succeedSpinner(spinner, '변경된 파일 목록을 가져왔습니다');
+      showWarning(`이슈 #${issue}와 관련된 변경된 파일이 없습니다.`);
       return;
     }
     
@@ -24,6 +29,8 @@ async function listCommand(issue) {
     
     // 통계 계산
     const stats = calculateFileStats(filteredFilesWithStatusInfo);
+    
+    succeedSpinner(spinner, '변경된 파일 목록을 가져왔습니다');
     
     console.log(chalk.green(`\n✅ 이슈 #${issue}에서 변경된 파일 (${stats.total}개):`));
     console.log(chalk.gray('─'.repeat(60)));
@@ -67,9 +74,18 @@ async function listCommand(issue) {
     console.log(chalk.gray('─'.repeat(30)));
     console.log(chalk.white(`  📁 총 파일 수: ${stats.total}개`));
     
+    // 상세 정보 옵션이 활성화된 경우
+    if (options.verbose) {
+      console.log(chalk.blue('\n🔍 상세 정보:'));
+      console.log(chalk.gray('─'.repeat(40)));
+      console.log(chalk.gray(`이슈 번호: #${issue}`));
+      console.log(chalk.gray(`검색 시간: ${new Date().toLocaleString()}`));
+      console.log(chalk.gray(`필터링된 파일: ${filteredFilesWithStatusInfo.length}/${filesWithStatus.length}개`));
+    }
+    
   } catch (error) {
-    console.error(chalk.red('❌ 오류가 발생했습니다:'), error.message);
-    process.exit(1);
+    failSpinner(spinner, '파일 목록을 가져오는데 실패했습니다');
+    handleError(error, '파일 목록 조회');
   }
 }
 

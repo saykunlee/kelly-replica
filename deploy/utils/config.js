@@ -9,39 +9,9 @@ const { testFtpConnection } = require('./ftp');
  * @returns {Promise<Object>} 설정 객체
  */
 async function loadConfig() {
-  // .env 파일 로드
-  dotenv.config();
-  
-  const config = {
-    ftp: {
-      host: process.env.FTP_HOST,
-      user: process.env.FTP_USER,
-      password: process.env.FTP_PASS,
-      port: parseInt(process.env.FTP_PORT) || 21,
-      secure: process.env.FTP_SECURE === 'true',
-      remotePath: process.env.FTP_REMOTE_PATH || '/'
-    }
-  };
-  
-  // 설정 파일 로드 (kelly-deploy.config.js)
-  try {
-    const configPath = path.join(process.cwd(), 'deploy', 'kelly-deploy.config.js');
-    const configFile = await fs.access(configPath).then(() => require(configPath)).catch(() => null);
-    
-    if (configFile) {
-      // 설정 파일의 값으로 환경 변수 값 덮어쓰기
-      if (configFile.ftp) {
-        config.ftp = { ...config.ftp, ...configFile.ftp };
-      }
-    }
-  } catch (error) {
-    // 설정 파일 로드 실패 시 무시
-  }
-  
-  // 필수 설정 검증
-  validateConfig(config);
-  
-  return config;
+  const sftpConfig = await loadVscodeSftpConfig();
+  if (!sftpConfig) throw new Error('.vscode/sftp.json 파일이 없습니다.');
+  return convertSftpToDeployConfig(sftpConfig);
 }
 
 /**
@@ -88,11 +58,15 @@ function convertSftpToDeployConfig(sftpConfig) {
   // SFTP 설정의 첫 번째 서버 정보를 사용
   const server = Array.isArray(sftpConfig) ? sftpConfig[0] : sftpConfig;
   
+  if (!server || !server.host || !server.username) {
+    throw new Error('.vscode/sftp.json에 host/username 정보가 없습니다.');
+  }
+  
   return {
     ftp: {
-      host: server.host || 'your-ftp-server.com',
-      user: server.username || 'your-username',
-      password: process.env.FTP_PASSWORD || server.password || 'your-password',
+      host: server.host,
+      user: server.username,
+      password: server.password,
       port: server.port || 21,
       secure: server.protocol === 'sftp' || false,
       remotePath: server.remotePath || server.path || '/'
@@ -184,7 +158,34 @@ async function createDefaultEnv(envPath = path.join(__dirname, '..', '.env'), sf
   if (sftpConfig) {
     // SFTP 설정을 기반으로 한 .env
     const server = Array.isArray(sftpConfig) ? sftpConfig[0] : sftpConfig;
-    defaultEnv = `# FTP 서버 설정 (VSCode SFTP에서 자동 가져옴)
+    defaultEnv = `# Kelly Deploy CLI 환경 변수 (VSCode SFTP에서 자동 가져옴)
+# 기본 환경: production
+
+# 개발 환경 설정
+DEV_FTP_HOST=${server.host || 'dev.example.com'}
+DEV_FTP_USER=${server.username || 'dev_user'}
+DEV_FTP_PASS=${server.password || 'your_dev_password'}
+DEV_FTP_PORT=${server.port || 21}
+DEV_FTP_SECURE=${server.protocol === 'sftp' ? 'true' : 'false'}
+DEV_FTP_REMOTE_PATH=${server.remotePath || server.path || '/dev/'}
+
+# 스테이징 환경 설정
+STAGING_FTP_HOST=${server.host || 'staging.example.com'}
+STAGING_FTP_USER=${server.username || 'staging_user'}
+STAGING_FTP_PASS=${server.password || 'your_staging_password'}
+STAGING_FTP_PORT=${server.port || 21}
+STAGING_FTP_SECURE=${server.protocol === 'sftp' ? 'true' : 'false'}
+STAGING_FTP_REMOTE_PATH=${server.remotePath || server.path || '/staging/'}
+
+# 운영 환경 설정
+PROD_FTP_HOST=${server.host || 'prod.example.com'}
+PROD_FTP_USER=${server.username || 'prod_user'}
+PROD_FTP_PASS=${server.password || 'your_prod_password'}
+PROD_FTP_PORT=${server.port || 21}
+PROD_FTP_SECURE=${server.protocol === 'sftp' ? 'true' : 'false'}
+PROD_FTP_REMOTE_PATH=${server.remotePath || server.path || '/public_html/'}
+
+# 기본 환경 설정 (하위 호환성)
 FTP_HOST=${server.host || 'your-ftp-server.com'}
 FTP_USER=${server.username || 'your-username'}
 FTP_PASS=${server.password || 'your-password'}
@@ -194,7 +195,34 @@ FTP_REMOTE_PATH=${server.remotePath || server.path || '/'}
 `;
   } else {
     // 기본 .env
-    defaultEnv = `# FTP 서버 설정
+    defaultEnv = `# Kelly Deploy CLI 환경 변수
+# 기본 환경: production
+
+# 개발 환경 설정
+DEV_FTP_HOST=dev.example.com
+DEV_FTP_USER=dev_user
+DEV_FTP_PASS=your_dev_password
+DEV_FTP_PORT=21
+DEV_FTP_SECURE=false
+DEV_FTP_REMOTE_PATH=/dev/
+
+# 스테이징 환경 설정
+STAGING_FTP_HOST=staging.example.com
+STAGING_FTP_USER=staging_user
+STAGING_FTP_PASS=your_staging_password
+STAGING_FTP_PORT=21
+STAGING_FTP_SECURE=false
+STAGING_FTP_REMOTE_PATH=/staging/
+
+# 운영 환경 설정
+PROD_FTP_HOST=prod.example.com
+PROD_FTP_USER=prod_user
+PROD_FTP_PASS=your_prod_password
+PROD_FTP_PORT=21
+PROD_FTP_SECURE=false
+PROD_FTP_REMOTE_PATH=/public_html/
+
+# 기본 환경 설정 (하위 호환성)
 FTP_HOST=your-ftp-server.com
 FTP_USER=your-username
 FTP_PASS=your-password
