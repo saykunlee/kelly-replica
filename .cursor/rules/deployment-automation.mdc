@@ -1,0 +1,376 @@
+# 배포 자동화 규칙
+
+## Git 기반 배포
+
+### 커밋 메시지 패턴
+```bash
+# 이슈 번호 포함
+git commit -m "feat: 사용자 인증 기능 추가 #123"
+
+# 이슈 번호만
+git commit -m "fix: 버그 수정 #456"
+
+# 여러 이슈
+git commit -m "feat: 대시보드 개선 #123 #456"
+```
+
+### Git 로그에서 변경 파일 추출
+```javascript
+const { execSync } = require('child_process');
+
+function getChangedFiles(issueNumber) {
+  const command = `git log --grep="#${issueNumber}" --oneline --name-only --pretty=format:"" | sort | uniq`;
+  
+  try {
+    const output = execSync(command, { encoding: 'utf8' });
+    return output
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+  } catch (error) {
+    return [];
+  }
+}
+```
+
+## 파일 필터링
+
+### .gitignore 기반 필터링
+```javascript
+const gitignoreParser = require('gitignore-parser');
+
+async function loadGitignore() {
+  try {
+    const content = await fs.readFile('.gitignore', 'utf8');
+    return gitignoreParser.compile(content);
+  } catch (error) {
+    return () => false; // .gitignore가 없으면 모든 파일 허용
+  }
+}
+
+function shouldIgnoreFile(filePath, ignoreRules) {
+  return ignoreRules(filePath);
+}
+```
+
+### .deployignore 파일
+```bash
+# .deployignore 예시
+node_modules/
+.git/
+*.log
+.env
+.DS_Store
+```
+
+### 복합 필터링
+```javascript
+async function filterDeployFiles(files) {
+  const gitignoreRules = await loadGitignore();
+  const deployignoreRules = await loadDeployignore();
+  
+  return files.filter(file => {
+    // .gitignore 규칙 확인
+    if (gitignoreRules(file)) return false;
+    
+    // .deployignore 규칙 확인
+    if (deployignoreRules(file)) return false;
+    
+    return true;
+  });
+}
+```
+
+## FTP 배포
+
+### FTP 연결 설정
+```javascript
+const ftp = require('basic-ftp');
+
+const ftpConfig = {
+  host: process.env.FTP_HOST,
+  user: process.env.FTP_USER,
+  password: process.env.FTP_PASS,
+  port: parseInt(process.env.FTP_PORT) || 21,
+  secure: process.env.FTP_SECURE === 'true'
+};
+```
+
+### 안전한 FTP 업로드
+```javascript
+async function uploadToFtp(files, config) {
+  const client = new ftp.Client();
+  client.ftp.verbose = false;
+  
+  try {
+    // 연결
+    await client.access(config);
+    
+    // 원격 디렉토리로 이동
+    if (config.remotePath) {
+      await client.ensureDir(config.remotePath);
+    }
+    
+    // 파일 업로드
+    for (const file of files) {
+      const localPath = path.join(process.cwd(), file);
+      await client.uploadFrom(localPath, file);
+    }
+    
+  } catch (error) {
+    throw new Error(`FTP 업로드 실패: ${error.message}`);
+  } finally {
+    client.close();
+  }
+}
+```
+
+### 배포 전 검증
+```javascript
+async function validateDeployment(files) {
+  // 파일 존재 확인
+  for (const file of files) {
+    const localPath = path.join(process.cwd(), file);
+    if (!await fileExists(localPath)) {
+      throw new Error(`파일이 존재하지 않습니다: ${file}`);
+    }
+  }
+  
+  // FTP 연결 테스트
+  await testFtpConnection(config);
+  
+  return true;
+}
+```
+
+## 환경별 배포
+
+### 환경 설정
+```javascript
+const environments = {
+  development: {
+    ftp: {
+      host: 'dev.example.com',
+      remotePath: '/dev/'
+    }
+  },
+  staging: {
+    ftp: {
+      host: 'staging.example.com',
+      remotePath: '/staging/'
+    }
+  },
+  production: {
+    ftp: {
+      host: 'prod.example.com',
+      remotePath: '/public_html/'
+    }
+  }
+};
+```
+
+### 환경별 배포 스크립트
+```javascript
+async function deployToEnvironment(issueNumber, environment) {
+  const config = environments[environment];
+  if (!config) {
+    throw new Error(`알 수 없는 환경: ${environment}`);
+  }
+  
+  const files = await getChangedFiles(issueNumber);
+  const filteredFiles = await filterDeployFiles(files);
+  
+  await validateDeployment(filteredFiles);
+  await uploadToFtp(filteredFiles, config.ftp);
+}
+```
+
+## 보안 고려사항
+
+### 민감 정보 관리
+```javascript
+// .env 파일 사용
+FTP_HOST=ftp.example.com
+FTP_USER=username
+FTP_PASS=password
+FTP_PORT=21
+FTP_SECURE=false
+```
+
+### 환경 변수 검증
+```javascript
+function validateEnvironment() {
+  const required = ['FTP_HOST', 'FTP_USER', 'FTP_PASS'];
+  const missing = required.filter(key => !process.env[key]);
+  
+  if (missing.length > 0) {
+    throw new Error(`필수 환경 변수가 누락되었습니다: ${missing.join(', ')}`);
+  }
+}
+```
+
+### 배포 로그
+```javascript
+function logDeployment(files, environment) {
+  const log = {
+    timestamp: new Date().toISOString(),
+    environment,
+    files: files.length,
+    fileList: files
+  };
+  
+  console.log(JSON.stringify(log, null, 2));
+}
+```
+
+## 에러 처리
+
+### 배포 실패 시 롤백
+```javascript
+async function deployWithRollback(files, config) {
+  const backup = await createBackup(config);
+  
+  try {
+    await uploadToFtp(files, config);
+    console.log('배포 성공');
+  } catch (error) {
+    console.error('배포 실패, 롤백 중...');
+    await restoreFromBackup(backup, config);
+    throw error;
+  }
+}
+```
+
+### 재시도 로직
+```javascript
+async function uploadWithRetry(files, config, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await uploadToFtp(files, config);
+      return;
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error;
+      }
+      console.log(`업로드 실패, ${attempt}/${maxRetries} 재시도...`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+    }
+  }
+}
+```
+
+## 모니터링 및 알림
+
+### 배포 상태 확인
+```javascript
+async function checkDeploymentStatus(files, config) {
+  const client = new ftp.Client();
+  
+  try {
+    await client.access(config);
+    
+    for (const file of files) {
+      const exists = await client.size(file);
+      if (!exists) {
+        throw new Error(`파일이 업로드되지 않았습니다: ${file}`);
+      }
+    }
+    
+    return true;
+  } finally {
+    client.close();
+  }
+}
+```
+
+### 배포 알림
+```javascript
+async function sendDeploymentNotification(success, files, environment) {
+  const message = {
+    type: success ? 'success' : 'error',
+    environment,
+    files: files.length,
+    timestamp: new Date().toISOString()
+  };
+  
+  // 슬랙, 이메일 등으로 알림 전송
+  console.log('배포 알림:', message);
+}
+```
+
+## 성능 최적화
+
+### 병렬 업로드
+```javascript
+async function uploadFilesParallel(files, config, concurrency = 5) {
+  const chunks = [];
+  for (let i = 0; i < files.length; i += concurrency) {
+    chunks.push(files.slice(i, i + concurrency));
+  }
+  
+  for (const chunk of chunks) {
+    await Promise.all(
+      chunk.map(file => uploadSingleFile(file, config))
+    );
+  }
+}
+```
+
+### 증분 배포
+```javascript
+async function incrementalDeploy(issueNumber, config) {
+  const changedFiles = await getChangedFiles(issueNumber);
+  const filteredFiles = await filterDeployFiles(changedFiles);
+  
+  // 변경된 파일만 배포
+  if (filteredFiles.length === 0) {
+    console.log('배포할 파일이 없습니다.');
+    return;
+  }
+  
+  await uploadToFtp(filteredFiles, config);
+}
+```
+
+## 테스트
+
+### 배포 시뮬레이션
+```javascript
+async function simulateDeployment(files, config) {
+  console.log('=== 배포 시뮬레이션 ===');
+  console.log('환경:', config.host);
+  console.log('업로드할 파일:', files.length);
+  
+  for (const file of files) {
+    console.log(`- ${file}`);
+  }
+  
+  console.log('시뮬레이션 완료');
+}
+```
+
+### 배포 테스트
+```javascript
+async function testDeployment(issueNumber) {
+  const files = await getChangedFiles(issueNumber);
+  const filteredFiles = await filterDeployFiles(files);
+  
+  // 파일 존재 확인
+  for (const file of filteredFiles) {
+    if (!await fileExists(file)) {
+      throw new Error(`파일이 존재하지 않습니다: ${file}`);
+    }
+  }
+  
+  // FTP 연결 테스트
+  await testFtpConnection(config);
+  
+  return filteredFiles;
+}
+```
+
+이 규칙들은 안전하고 효율적인 배포 자동화를 구현하는 데 도움이 됩니다.
+description:
+globs:
+alwaysApply: false
+---
