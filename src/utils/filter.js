@@ -1,36 +1,60 @@
 const fs = require('fs').promises;
 const path = require('path');
 const { glob } = require('glob');
-const gitignoreParser = require('gitignore-parser');
 
 /**
  * .gitignore와 .deployignore 파일을 읽어서 파싱합니다.
  * @returns {Promise<Object>} 파싱된 ignore 규칙들
  */
 async function loadIgnoreFiles() {
-  const ignoreRules = {};
+  const ignoreRules = {
+    gitignore: [],
+    deployignore: []
+  };
   
   try {
     // .gitignore 파일 읽기
     const gitignorePath = path.join(process.cwd(), '.gitignore');
     const gitignoreContent = await fs.readFile(gitignorePath, 'utf8');
-    ignoreRules.gitignore = gitignoreParser.compile(gitignoreContent);
+    ignoreRules.gitignore = parseIgnoreFile(gitignoreContent);
   } catch (error) {
-    // .gitignore 파일이 없는 경우 무시
-    ignoreRules.gitignore = () => false;
+    // .gitignore 파일이 없는 경우 빈 배열
+    ignoreRules.gitignore = [];
   }
   
   try {
     // .deployignore 파일 읽기
     const deployignorePath = path.join(process.cwd(), '.deployignore');
     const deployignoreContent = await fs.readFile(deployignorePath, 'utf8');
-    ignoreRules.deployignore = gitignoreParser.compile(deployignoreContent);
+    ignoreRules.deployignore = parseIgnoreFile(deployignoreContent);
   } catch (error) {
-    // .deployignore 파일이 없는 경우 무시
-    ignoreRules.deployignore = () => false;
+    // .deployignore 파일이 없는 경우 빈 배열
+    ignoreRules.deployignore = [];
   }
   
   return ignoreRules;
+}
+
+/**
+ * ignore 파일 내용을 파싱합니다.
+ * @param {string} content - ignore 파일 내용
+ * @returns {string[]} 패턴 배열
+ */
+function parseIgnoreFile(content) {
+  return content
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0 && !line.startsWith('#'))
+    .map(line => {
+      // glob 패턴으로 변환
+      if (line.startsWith('/')) {
+        return line.substring(1);
+      }
+      if (line.endsWith('/')) {
+        return line + '**';
+      }
+      return line;
+    });
 }
 
 /**
@@ -41,16 +65,37 @@ async function loadIgnoreFiles() {
  */
 function shouldIgnoreFile(filePath, ignoreRules) {
   // .gitignore 규칙 확인
-  if (ignoreRules.gitignore(filePath)) {
-    return true;
+  for (const pattern of ignoreRules.gitignore) {
+    if (matchesPattern(filePath, pattern)) {
+      return true;
+    }
   }
   
   // .deployignore 규칙 확인
-  if (ignoreRules.deployignore(filePath)) {
-    return true;
+  for (const pattern of ignoreRules.deployignore) {
+    if (matchesPattern(filePath, pattern)) {
+      return true;
+    }
   }
   
   return false;
+}
+
+/**
+ * 파일 경로가 패턴과 일치하는지 확인합니다.
+ * @param {string} filePath - 파일 경로
+ * @param {string} pattern - glob 패턴
+ * @returns {boolean} 일치하면 true
+ */
+function matchesPattern(filePath, pattern) {
+  // 간단한 패턴 매칭 구현
+  if (pattern.includes('*')) {
+    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+    return regex.test(filePath);
+  }
+  
+  // 정확한 경로 매칭
+  return filePath === pattern || filePath.startsWith(pattern + '/');
 }
 
 /**

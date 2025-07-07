@@ -31,3 +31,5 @@ logs/
 # VSCode 설정 무시
 .vscode/settings.json
 .vscode/sftp.json
+.env
+/node_modules

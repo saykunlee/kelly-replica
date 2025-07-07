@@ -1,6 +1,6 @@
 const chalk = require('chalk');
-const ora = require('ora');
-const { getChangedFiles } = require('../utils/git');
+const { default: ora } = require('ora');
+const { getChangedFilesWithStatus } = require('../utils/git');
 const { filterIgnoredFiles } = require('../utils/filter');
 const { uploadToFtp } = require('../utils/ftp');
 const { loadConfig } = require('../utils/config');
@@ -14,13 +14,15 @@ async function uploadCommand(issue, options) {
     spinner.succeed('설정 로드 완료');
     
     spinner.start('변경된 파일을 가져오는 중...');
-    const changedFiles = await getChangedFiles(issue);
+    const filesWithStatus = await getChangedFilesWithStatus(issue);
     
-    if (changedFiles.length === 0) {
+    if (filesWithStatus.length === 0) {
       spinner.warn('해당 이슈와 관련된 변경된 파일이 없습니다.');
       return;
     }
     
+    // 파일 경로만 추출
+    const changedFiles = filesWithStatus.map(item => item.file);
     spinner.succeed(`변경된 파일 ${changedFiles.length}개 발견`);
     
     spinner.start('파일 필터링 중...');
