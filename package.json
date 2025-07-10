@@ -1,0 +1,9 @@
+{
+  "name": "kelly",
+  "version": "1.0.0",
+  "description": "Kelly System",
+  "main": "index.js",
+  "dependencies": {
+    "strip-ansi": "^7.1.0"
+  }
+}

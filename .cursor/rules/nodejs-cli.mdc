@@ -409,3 +409,68 @@ cli-name --help
 npm unlink
 ```
 
+# Node.js CLI 실전 개발 규칙
+
+## 1. spinner/진행률 UX
+
+- 각 단계별로 spinner를 명확히 생성/종료하고, 진행률(%) 등 실시간 상태를 사용자에게 제공한다.
+- spinner 객체가 undefined일 때 succeed/fail 호출 금지.
+
+```javascript
+// ✅ Good
+let spinner = createSpinner('...');
+spinner.start();
+// ...
+succeedSpinner(spinner, '완료');
+
+// ❌ Bad
+let spinner;
+succeedSpinner(spinner, '완료'); // spinner가 undefined일 수 있음
+```
+
+## 2. SIGINT/timeout 등 안전장치
+
+- 외부 명령어(spawn/exec) 실행 시, timeout 및 SIGINT(CTRL+C) 신호 전달, 강제 종료 로직을 반드시 구현한다.
+
+```javascript
+// ✅ Good
+const child = spawn('git', diffArgs, { cwd: process.cwd() });
+process.on('SIGINT', () => {
+  child.kill('SIGINT');
+  process.exit();
+});
+const timer = setTimeout(() => {
+  if (!finished) {
+    child.kill('SIGKILL');
+    process.exit(1);
+  }
+}, 15000);
+```
+
+## 3. 디버그/개발용 로그와 사용자 메시지 분리
+
+- 디버그용 console.log는 개발/테스트 단계에서만 사용하고, 운영 배포 시에는 반드시 제거한다.
+
+## 4. 무시 패턴(glob) 적용 시 주의
+
+- .deployignore, .gitignore 등에서 디렉토리 패턴(예: `deploy/`, `.cursor/`)은 하위 전체에 정확히 적용해야 한다.
+- glob-to-regex 변환 시 `deploy/` → `(?:^|/)deploy(?:/|$)` 등으로 변환
+
+```javascript
+// ✅ Good
+function globToRegex(glob) {
+  if (glob.endsWith('/')) glob = glob + '**';
+  if (glob.startsWith('**/')) {
+    glob = glob.replace('**/', '');
+    return new RegExp(`(?:^|\/)${glob.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*').replace(/\?/g, '.').replace(/\//g, '\/')}(?:\/|$)`);
+  }
+  // ...
+}
+```
+
+---
+
+**Cross-reference:**
+- [deployment-automation.mdc](mdc:.cursor/rules/deployment-automation.mdc)
+- [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc)
+

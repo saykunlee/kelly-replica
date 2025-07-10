@@ -407,7 +407,93 @@ const deployConfig = {
 - [deploy/kelly-deploy.config.js](mdc:deploy/kelly-deploy.config.js)
 
 이 규칙들은 안전하고 효율적인 배포 자동화를 구현하는 데 도움이 됩니다.
-description:
-globs:
-alwaysApply: false
+
+# 배포 자동화 실전 규칙
+
+## 1. 무시 패턴(.deployignore) 정밀 적용
+
+- 디렉토리 패턴(예: `deploy/`, `.cursor/`, `z_info/`)은 하위 모든 파일/폴더에 정확히 적용해야 한다.
+- glob-to-regex 변환 시 `deploy/` → `(?:^|/)deploy(?:/|$)` 등으로 변환하여, `deploy/commands/list.js` 등 하위 파일도 무시된다.
+
+```javascript
+// ✅ Good: 하위 전체에 적용
+function globToRegex(glob) {
+  if (glob.endsWith('/')) glob = glob + '**';
+  if (glob.startsWith('**/')) {
+    glob = glob.replace('**/', '');
+    return new RegExp(`(?:^|\/)${glob.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*').replace(/\?/g, '.').replace(/\//g, '\/')}(?:\/|$)`);
+  }
+  // ...
+}
+```
+
+## 2. 삭제 파일 업로드 방지
+
+- git diff 등에서 status가 'deleted'인 파일은 업로드 대상에서 반드시 제외한다.
+
+```javascript
+// ✅ Good
+const uploadCandidates = filesWithStatus.filter(item => item.status !== 'deleted');
+const changedFiles = uploadCandidates.map(item => item.file);
+```
+
+## 3. spinner/진행률 UX
+
+- 각 단계별로 spinner를 명확히 생성/종료하고, 진행률(%) 등 실시간 상태를 사용자에게 제공한다.
+- spinner 객체가 undefined일 때 succeed/fail 호출 금지.
+
+```javascript
+// ✅ Good
+let spinner = createSpinner('...');
+spinner.start();
+// ...
+succeedSpinner(spinner, '완료');
+```
+
+## 4. 외부 명령어 실행 시 timeout/kill 안전장치
+
+- spawn/exec 등으로 외부 명령어 실행 시, timeout 및 강제 종료 로직을 반드시 구현한다.
+
+```javascript
+// ✅ Good
+const child = spawn('git', diffArgs, { cwd: process.cwd() });
+const timer = setTimeout(() => {
+  if (!finished) {
+    child.kill('SIGKILL');
+    process.exit(1);
+  }
+}, 15000);
+```
+
+## 5. 디버그/개발용 로그와 사용자 메시지 분리
+
+- 디버그용 console.log는 개발/테스트 단계에서만 사용하고, 운영 배포 시에는 반드시 제거한다.
+
+## 6. 프로젝트 복사 후 즉시 사용 자동화
+
+- deploy 폴더를 다른 프로젝트 루트에 복사한 뒤, `node deploy/index.js init`만 실행하면 아래가 자동 처리되어야 한다.
+  1. deploy 폴더 내 npm install (필수 패키지 자동 설치)
+  2. deploy/index.js 실행 권한 부여 (chmod +x)
+  3. deploy 폴더에서 npm link (kelly-deploy 글로벌 명령어 등록)
+  4. 설정 파일(.env, .deployignore, deploy/kelly-deploy.config.js) 자동 생성
+  5. 각 단계별 성공/실패 안내 메시지 출력
+
+```javascript
+// ✅ Good: init 명령에서 모든 준비 자동화
+try {
+  execSync('npm install', { cwd: path.join(process.cwd(), 'deploy'), stdio: 'inherit' });
+  showSuccess('npm install 완료');
+  execSync('chmod +x index.js', { cwd: path.join(process.cwd(), 'deploy') });
+  showSuccess('실행 권한 부여 완료');
+  execSync('npm link', { cwd: path.join(process.cwd(), 'deploy'), stdio: 'inherit' });
+  showSuccess('kelly-deploy 글로벌 명령어 등록 완료');
+} catch (e) {
+  showWarning('자동화 단계 실패 시 수동 실행 안내');
+}
+```
+
 ---
+
+**Cross-reference:**
+- [nodejs-cli.mdc](mdc:.cursor/rules/nodejs-cli.mdc)
+- [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc)

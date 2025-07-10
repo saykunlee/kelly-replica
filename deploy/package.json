@@ -1,0 +1,36 @@
+{
+  "name": "kelly-deploy",
+  "version": "1.0.0",
+  "description": "GitHub 이슈 기반 자동 배포 시스템",
+  "main": "index.js",
+  "bin": {
+    "kelly-deploy": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "init": "node index.js init",
+    "test": "node index.js test",
+    "list": "node index.js list",
+    "upload": "node index.js upload",
+    "help": "node index.js help"
+  },
+  "keywords": [
+    "deploy",
+    "ftp",
+    "github",
+    "automation",
+    "cli"
+  ],
+  "author": "UNYICT",
+  "license": "MIT",
+  "dependencies": {
+    "strip-ansi": "^7.1.0",
+    "commander": "^11.1.0",
+    "basic-ftp": "^4.6.0",
+    "chalk": "^4.1.2",
+    "dotenv": "^16.3.1",
+    "glob": "^10.3.10",
+    "inquirer": "^8.2.4",
+    "ora": "^5.4.1"
+  }
+}
