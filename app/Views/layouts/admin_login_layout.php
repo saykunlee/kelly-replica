@@ -7,21 +7,13 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<!-- Twitter -->
-	<meta name="twitter:site" content="@themepixels">
-	<meta name="twitter:creator" content="@themepixels">
-	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="<?= config('App')->siteTitle ?>">
-	<meta name="twitter:description" content="<?= config('App')->siteTitle ?>">
-	<meta name="twitter:image" content="http://themepixels.me/dashforge/img/dashforge-social.png">
-
 	<!-- Facebook -->
-	<meta property="og:url" content="http://themepixels.me/dashforge">
-	<meta property="og:title" content="HJAzalea">
+	<meta property="og:url" content="https://kelly.unyboard.com">
+	<meta property="og:title" content="Kelly">
 	<meta property="og:description" content="<?= config('App')->siteTitle ?>">
 
-	<meta property="og:image" content="http://themepixels.me/dashforge/img/dashforge-social.png">
-	<meta property="og:image:secure_url" content="http://themepixels.me/dashforge/img/dashforge-social.png">
+	<meta property="og:image" content="https://kelly.unyboard.com/assets/img/logo.png">
+	<meta property="og:image:secure_url" content="https://kelly.unyboard.com/assets/img/logo.png">
 	<meta property="og:image:type" content="image/png">
 	<meta property="og:image:width" content="1200">
 	<meta property="og:image:height" content="600">
@@ -29,35 +21,35 @@
 	<title> <?= config('App')->siteTitle ?></title>
 
 	<!-- vendor css -->
-	<link href="<?= base_url('lib/@fortawesome/fontawesome-free/css/all.min.css') ?>" rel="stylesheet">
-	<link href="<?= base_url('lib/ionicons/css/ionicons.min.css') ?>" rel="stylesheet">
-	<link href="<?= base_url('lib/fullcalendar/fullcalendar.min.css') ?>" rel="stylesheet">
-	<link href="<?= base_url('lib/select2/css/select2.min.css') ?>" rel="stylesheet">
+	<link href="/lib/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+	<link href="/lib/ionicons/css/ionicons.min.css" rel="stylesheet">
+	<link href="/lib/fullcalendar/fullcalendar.min.css" rel="stylesheet">
+	<link href="/lib/select2/css/select2.min.css" rel="stylesheet">
 
 
 	<!-- DashForge CSS -->
-	<link rel="stylesheet" href="<?= base_url('assets/css/dashforge.css') ?>">
-	<link rel="stylesheet" href="<?= base_url('assets/css/dashforge.auth.css') ?>">
+	<link rel="stylesheet" href="/assets/css/dashforge.css">
+	<link rel="stylesheet" href="/assets/css/dashforge.auth.css">
 
-	<link href="<?= base_url('lib/toastr/toastr.min.css') ?>" rel="stylesheet" type="text/css" />
+	<link href="/lib/toastr/toastr.min.css" rel="stylesheet" type="text/css" />
 
 	<!-- js script start -->
 
 	<!-- Vue.js 로컬 파일 -->
-	<script src="<?= base_url('assets/js/vue.global.js') ?>"></script>
-	<script src="<?= base_url('/lib/axios/dist/axios.js') ?>"></script>
+	<script src="/assets/js/vue.global.js"></script>
+	<script src="/lib/axios/dist/axios.js"></script>
 
-	<script src="<?= base_url('lib/fingerprintjs/fp.min.js') ?>"></script>
+	<script src="/lib/fingerprintjs/fp.min.js"></script>
 
-	<script src="<?= base_url('lib/jquery/jquery.min.js') ?>"></script>
-	<script src="<?= base_url('lib/jqueryui/jquery-ui.min.js') ?>"></script>
-	<script src="<?= base_url('lib/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
-	<script src="<?= base_url('lib/feather-icons/feather.min.js') ?>"></script>
-	<script src="<?= base_url('lib/perfect-scrollbar/perfect-scrollbar.min.js') ?>"></script>
-	<script src="<?= base_url('lib/moment/moment.js') ?>"></script>
-	<script src="<?= base_url('lib/select2/js/select2.min.js') ?>"></script>
-	<script src="<?= base_url('assets/js/dashforge.js') ?>"></script>
-	<script src="<?= base_url('lib/toastr/toastr.min.js') ?>"></script>
+	<script src="/lib/jquery/jquery.min.js"></script>
+	<script src="/lib/jqueryui/jquery-ui.min.js"></script>
+	<script src="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="/lib/feather-icons/feather.min.js"></script>
+	<script src="/lib/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+	<script src="/lib/moment/moment.js"></script>
+	<script src="/lib/select2/js/select2.min.js"></script>
+	<script src="/assets/js/dashforge.js"></script>
+	<script src="/lib/toastr/toastr.min.js"></script>
 	<!-- js script end -->
 
 

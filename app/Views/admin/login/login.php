@@ -32,11 +32,11 @@
                     <label>User ID</label>
                     <input type="hidden" name="url" class="form-control" v-model="search.url">
                     <input type="hidden" name="device_fingerprint" class="form-control" v-model="search.device_fingerprint">
-                    <input type="text" name="mem_userid" class="form-control" placeholder="Enter your User ID" value="<?= set_value('mem_userid') ?>">
+                    <input type="text" name="mem_userid" class="form-control" placeholder="Enter your User ID" value="<?= set_value('mem_userid') ?>" autocomplete="username">
                 </div>
                 <div class="form-group position-relative">
                     <label class="mg-b-0-f">Password</label>
-                    <input type="password" id="password" name="mem_password" class="form-control" placeholder="Enter your password">
+                    <input type="password" id="password" name="mem_password" class="form-control" placeholder="Enter your password" autocomplete="current-password">
                     <span id="togglePassword" class="position-absolute tx-color-03" style="right: 10px; top: 30px; cursor: pointer;">
                         <i class="fa fa-eye"></i>
                     </span>

@@ -10,15 +10,15 @@
     <title>User Dashboard</title>
 
     <!-- vendor css -->
-    <link href="<?= base_url('lib/@fortawesome/fontawesome-free/css/all.min.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('lib/ionicons/css/ionicons.min.css') ?>" rel="stylesheet">
+    <link href="/lib/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/lib/ionicons/css/ionicons.min.css" rel="stylesheet">
 
     <!-- DashForge CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/css/unyict_font.css') . '?ver=' . time() ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/dashforge.css') . '?ver=' . time() ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/dashforge.dashboard.css') . '?ver=' . time() ?>">
+    <link rel="stylesheet" href="/assets/css/unyict_font.css?ver=<?= time() ?>">
+    <link rel="stylesheet" href="/assets/css/dashforge.css?ver=<?= time() ?>">
+    <link rel="stylesheet" href="/assets/css/dashforge.dashboard.css?ver=<?= time() ?>">
     
-    <link id="dfMode" rel="stylesheet" href="<?= base_url('assets/css/skin.light.css') ?>">
+    <link id="dfMode" rel="stylesheet" href="/assets/css/skin.light.css">
     
 </head>
 
@@ -46,19 +46,19 @@
     </footer>
 
     <?= $this->renderSection('scripts') ?>
-    <script src="<?= base_url('lib/jquery/jquery.min.js') ?>"></script>
-    <script src="<?= base_url('lib/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
-    <script src="<?= base_url('lib/feather-icons/feather.min.js') ?>"></script>
-    <script src="<?= base_url('lib/perfect-scrollbar/perfect-scrollbar.min.js') ?>"></script>
-    <script src="<?= base_url('lib/chart.js/Chart.bundle.min.js') ?>"></script>
-    <script src="<?= base_url('lib//jquery.flot/jquery.flot.js') ?>"></script>
-    <script src="<?= base_url('lib/jquery.flot/jquery.flot.stack.js') ?>"></script>
-    <script src="<?= base_url('lib/jquery.flot/jquery.flot.resize.js') ?>"></script>
+    <script src="/lib/jquery/jquery.min.js"></script>
+    <script src="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/lib/feather-icons/feather.min.js"></script>
+    <script src="/lib/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="/lib/chart.js/Chart.bundle.min.js"></script>
+    <script src="/lib/jquery.flot/jquery.flot.js"></script>
+    <script src="/lib/jquery.flot/jquery.flot.stack.js"></script>
+    <script src="/lib/jquery.flot/jquery.flot.resize.js"></script>
 
-    <script src="<?= base_url('assets/js/dashforge.js') ?>"></script>
-    <script src="<?= base_url('assets/js/dashforge.sampledata.js') ?>"></script>
-    <script src="<?= base_url('assets/js/dashboard-two.js') ?>"></script>
-    <script src="<?= base_url('lib/js-cookie/js.cookie.js') ?>"></script>
+    <script src="/assets/js/dashforge.js"></script>
+    <script src="/assets/js/dashforge.sampledata.js"></script>
+    <script src="/assets/js/dashboard-two.js"></script>
+    <script src="/lib/js-cookie/js.cookie.js"></script>
     
 
     <!-- append theme customizer -->

@@ -34,3 +34,4 @@ logs/
 .env
 node_modules
 .deployignore
+z_info/.php_server.pid
