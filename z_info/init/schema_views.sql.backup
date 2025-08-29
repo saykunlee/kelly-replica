@@ -1,0 +1,143 @@
+-- Views for new database
+
+CREATE VIEW `v_board` AS 
+SELECT `bd`.`brd_id` AS `brd_id`, `bd`.`bgr_id` AS `bgr_id`, `bd`.`brd_key` AS `brd_key`, 
+       `bd`.`brd_type` AS `brd_type`, `bd`.`brd_form` AS `brd_form`, `bd`.`brd_name` AS `brd_name`,
+       `bd`.`brd_mobile_name` AS `brd_mobile_name`, `bd`.`brd_order` AS `brd_order`, 
+       `bd`.`brd_search` AS `brd_search`, `bd`.`update_date` AS `update_date`, 
+       `bd`.`insert_date` AS `insert_date`, `bd`.`insert_id` AS `insert_id`, 
+       `bd`.`update_id` AS `update_id`, `bd`.`useing` AS `useing`, 
+       `bd`.`is_deleted` AS `is_deleted`, `bd`.`brd_id` AS `no`, 
+       `bd`.`brd_id` AS `pkey`, FN_GET_ALL_TAGS_FOR_BOARD(`bd`.`brd_id`,'1') AS `tags`,
+       FN_GET_ALL_TAGS_FOR_BOARD(`bd`.`brd_id`,'all') AS `all_tags`,
+       FN_GET_POST_CNT(`bd`.`brd_id`,'brd_id') AS `post_cnt`,
+       FN_get_bordgroup_name(`bd`.`bgr_id`) AS `bgr_name`,
+       FN_get_memname(`bd`.`insert_id`) AS `insert_member`,
+       FN_get_memname(`bd`.`update_id`) AS `update_member`,
+       DATE_FORMAT(`bd`.`insert_date`,'%Y-%m-%d') AS `insert_date_ymd`,
+       DATE_FORMAT(`bd`.`update_date`,'%Y-%m-%d') AS `update_date_ymd`,
+       IF(`bd`.`useing` = 1,'사용','미사용') AS `useing_text`
+FROM `board` `bd`;
+
+CREATE VIEW `v_board_category` AS 
+SELECT `bc`.`bca_id` AS `no`, `bc`.`bca_id` AS `pkey`, 
+       FN_get_bord_name(`bc`.`brd_id`) AS `brd_name`, `bc`.`bca_id` AS `bca_id`,
+       `bc`.`brd_id` AS `brd_id`, `bc`.`bca_key` AS `bca_key`, 
+       `bc`.`bca_value` AS `bca_value`, `bc`.`bca_parent` AS `bca_parent`,
+       `bc`.`bca_order` AS `bca_order`, `bc`.`insert_date` AS `insert_date`,
+       `bc`.`insert_id` AS `insert_id`, `bc`.`update_date` AS `update_date`,
+       `bc`.`update_id` AS `update_id`, `bc`.`useing` AS `useing`,
+       `bc`.`is_deleted` AS `is_deleted`, FN_get_memname(`bc`.`insert_id`) AS `insert_member`,
+       FN_get_memname(`bc`.`update_id`) AS `update_member`,
+       DATE_FORMAT(`bc`.`insert_date`,'%Y-%m-%d') AS `insert_date_ymd`,
+       DATE_FORMAT(`bc`.`update_date`,'%Y-%m-%d') AS `update_date_ymd`,
+       IF(`bc`.`useing` = 1,'사용','미사용') AS `useing_text`
+FROM `board_category` `bc`;
+
+CREATE VIEW `v_board_group` AS 
+SELECT `bg`.`bgr_id` AS `bgr_id`, `bg`.`bgr_key` AS `bgr_key`, `bg`.`bgr_name` AS `bgr_name`,
+       FN_GET_BOARD_COUNT_BY_GROUP(`bg`.`bgr_id`) AS `bg_count`, `bg`.`bgr_order` AS `bgr_order`,
+       `bg`.`update_date` AS `update_date`, `bg`.`insert_date` AS `insert_date`,
+       `bg`.`insert_id` AS `insert_id`, `bg`.`update_id` AS `update_id`,
+       `bg`.`useing` AS `useing`, `bg`.`is_deleted` AS `is_deleted`,
+       `bg`.`bgr_id` AS `no`, `bg`.`bgr_id` AS `pkey`,
+       FN_get_memname(`bg`.`insert_id`) AS `insert_member`,
+       FN_get_memname(`bg`.`update_id`) AS `update_member`,
+       DATE_FORMAT(`bg`.`insert_date`,'%Y-%m-%d') AS `insert_date_ymd`,
+       DATE_FORMAT(`bg`.`update_date`,'%Y-%m-%d') AS `update_date_ymd`,
+       IF(`bg`.`useing` = 1,'사용','미사용') AS `useing_text`
+FROM `board_group` `bg`;
+
+CREATE VIEW `v_post` AS 
+SELECT `p`.`post_id` AS `no`, `p`.`post_id` AS `pkey`, `p`.`post_id` AS `post_id`,
+       `p`.`post_num` AS `post_num`, `p`.`post_reply` AS `post_reply`, `p`.`brd_id` AS `brd_id`,
+       FN_get_bordgroup_id(`p`.`brd_id`) AS `bgr_id`, FN_get_bord_key(`p`.`brd_id`) AS `brd_key`,
+       FN_get_bord_type(`p`.`brd_id`) AS `brd_type`, FN_get_bord_name(`p`.`brd_id`) AS `brd_name`,
+       `p`.`post_title` AS `post_title`, LEFT(`p`.`post_content`,133333) AS `post_content`,
+       `p`.`post_content` AS `post_content_full`, `p`.`post_category` AS `post_category`,
+       `p`.`mem_id` AS `mem_id`, `p`.`post_userid` AS `post_userid`,
+       `p`.`post_username` AS `post_username`, `p`.`post_nickname` AS `post_nickname`,
+       CASE WHEN CHAR_LENGTH(`p`.`post_nickname`) > 2 
+            THEN CONCAT(SUBSTR(`p`.`post_nickname`,1,1),REPEAT('*',CHAR_LENGTH(`p`.`post_nickname`) - 2),SUBSTR(`p`.`post_nickname`,CHAR_LENGTH(`p`.`post_nickname`),1))
+            WHEN CHAR_LENGTH(`p`.`post_nickname`) = 2 
+            THEN CONCAT(SUBSTR(`p`.`post_nickname`,1,1),'*')
+            ELSE `p`.`post_nickname` END AS `masked_post_nickname`,
+       `p`.`post_hash` AS `post_hash`,
+       CASE WHEN `p`.`post_sex` = 0 THEN '남' WHEN `p`.`post_sex` = 1 THEN '여' ELSE '' END AS `post_sex_text`,
+       `p`.`post_sex` AS `post_sex`, `p`.`post_travel_team` AS `post_travel_team`,
+       IF(`p`.`post_travel_chasu` <> '' AND `p`.`post_travel_team` <> '' AND `p`.`post_travel_month` <> '',
+          CONCAT(`p`.`post_travel_team`,' ',`p`.`post_travel_month`,'월 ',`p`.`post_travel_chasu`,'차'),'') AS `post_travel_team_name`,
+       `p`.`post_travel_year` AS `post_travel_year`, `p`.`post_travel_month` AS `post_travel_month`,
+       `p`.`post_travel_chasu` AS `post_travel_chasu`, `p`.`post_age` AS `post_age`,
+       FN_GET_TAGS_FOR_POST(`p`.`post_id`) AS `post_tags`, `p`.`post_email` AS `post_email`,
+       `p`.`post_homepage` AS `post_homepage`, `p`.`post_datetime` AS `post_datetime`,
+       `p`.`post_password` AS `post_password`, `p`.`post_updated_datetime` AS `post_updated_datetime`,
+       `p`.`post_update_mem_id` AS `post_update_mem_id`, `p`.`post_comment_count` AS `post_comment_count`,
+       `p`.`post_comment_updated_datetime` AS `post_comment_updated_datetime`,
+       `p`.`post_link_count` AS `post_link_count`, `p`.`post_secret` AS `post_secret`,
+       `p`.`post_html` AS `post_html`, `p`.`post_hide_comment` AS `post_hide_comment`,
+       `p`.`post_notice` AS `post_notice`, `p`.`post_receive_email` AS `post_receive_email`,
+       FN_GET_COMMENT_CNT(`p`.`post_id`) AS `post_comment_cnt`, `p`.`post_hit` AS `post_hit`,
+       `p`.`post_like` AS `post_like`, `p`.`post_dislike` AS `post_dislike`,
+       `p`.`post_ip` AS `post_ip`, `p`.`post_blame` AS `post_blame`,
+       `p`.`post_device` AS `post_device`, `p`.`post_file` AS `post_file`,
+       `p`.`post_image` AS `post_image`, `p`.`post_del` AS `post_del`,
+       `p`.`post_recommand` AS `post_recommand`, `p`.`is_temp` AS `is_temp`,
+       FN_IS_RECOMMEND_DISPLAY_MANUAL() AS `is_recommend_display_manual`,
+       `p`.`useing` AS `useing`, `p`.`mem_id` AS `insert_id`,
+       FN_get_memname(`p`.`mem_id`) AS `insert_member`, `p`.`post_update_mem_id` AS `update_id`,
+       FN_get_memname(`p`.`post_update_mem_id`) AS `update_member`,
+       `p`.`post_datetime` AS `insert_date`, DATE_FORMAT(`p`.`post_datetime`,'%Y-%m-%d') AS `insert_date_ymd`,
+       `p`.`post_updated_datetime` AS `update_date`, DATE_FORMAT(`p`.`post_updated_datetime`,'%Y-%m-%d') AS `update_date_ymd`,
+       IF(`p`.`useing` = 1,'사용','미사용') AS `useing_text`, `p`.`post_del` AS `is_deleted`
+FROM `post` `p`;
+
+CREATE VIEW `v_post_short` AS 
+SELECT `p`.`post_id` AS `no`, `p`.`post_id` AS `pkey`, `p`.`post_id` AS `post_id`,
+       `p`.`post_num` AS `post_num`, `p`.`post_reply` AS `post_reply`, `p`.`brd_id` AS `brd_id`,
+       FN_get_bordgroup_id(`p`.`brd_id`) AS `bgr_id`, FN_get_bord_key(`p`.`brd_id`) AS `brd_key`,
+       FN_get_bord_type(`p`.`brd_id`) AS `brd_type`, FN_get_bord_name(`p`.`brd_id`) AS `brd_name`,
+       `p`.`post_title` AS `post_title`,
+       CASE WHEN CHAR_LENGTH(`p`.`post_content`) > 100 
+            THEN CONCAT(SUBSTR(`p`.`post_content`,1,1000),'...')
+            ELSE `p`.`post_content` END AS `post_content_short`,
+       `p`.`post_category` AS `post_category`, `p`.`mem_id` AS `mem_id`,
+       `p`.`post_userid` AS `post_userid`, `p`.`post_username` AS `post_username`,
+       `p`.`post_nickname` AS `post_nickname`,
+       CASE WHEN CHAR_LENGTH(`p`.`post_nickname`) > 2 
+            THEN CONCAT(SUBSTR(`p`.`post_nickname`,1,1),REPEAT('*',CHAR_LENGTH(`p`.`post_nickname`) - 2),SUBSTR(`p`.`post_nickname`,CHAR_LENGTH(`p`.`post_nickname`),1))
+            WHEN CHAR_LENGTH(`p`.`post_nickname`) = 2 
+            THEN CONCAT(SUBSTR(`p`.`post_nickname`,1,1),'*')
+            ELSE `p`.`post_nickname` END AS `masked_post_nickname`,
+       `p`.`post_hash` AS `post_hash`, IF(`p`.`post_sex` = 0,'남성','여성') AS `post_sex_text`,
+       `p`.`post_sex` AS `post_sex`, `p`.`post_travel_team` AS `post_travel_team`,
+       `p`.`post_travel_year` AS `post_travel_year`, `p`.`post_travel_month` AS `post_travel_month`,
+       `p`.`post_travel_chasu` AS `post_travel_chasu`, `p`.`post_age` AS `post_age`,
+       FN_GET_TAGS_FOR_POST(`p`.`post_id`) AS `post_tags`, `p`.`post_email` AS `post_email`,
+       `p`.`post_homepage` AS `post_homepage`, `p`.`post_datetime` AS `post_datetime`,
+       DATE_FORMAT(`p`.`post_datetime`,'%Y-%m-%d') AS `post_date`, `p`.`post_password` AS `post_password`,
+       `p`.`post_updated_datetime` AS `post_updated_datetime`, `p`.`post_update_mem_id` AS `post_update_mem_id`,
+       `p`.`post_comment_count` AS `post_comment_count`, `p`.`post_comment_updated_datetime` AS `post_comment_updated_datetime`,
+       `p`.`post_link_count` AS `post_link_count`, `p`.`post_secret` AS `post_secret`,
+       `p`.`post_html` AS `post_html`, `p`.`post_hide_comment` AS `post_hide_comment`,
+       `p`.`post_notice` AS `post_notice`, `p`.`post_receive_email` AS `post_receive_email`,
+       FN_GET_COMMENT_CNT(`p`.`post_id`) AS `post_comment_cnt`, `p`.`post_hit` AS `post_hit`,
+       `p`.`post_like` AS `post_like`, `p`.`post_dislike` AS `post_dislike`,
+       `p`.`post_ip` AS `post_ip`, `p`.`post_blame` AS `post_blame`,
+       `p`.`post_device` AS `post_device`, `p`.`post_file` AS `post_file`,
+       `p`.`post_image` AS `post_image`, `p`.`post_del` AS `post_del`,
+       `p`.`post_recommand` AS `post_recommand`, `p`.`is_temp` AS `is_temp`,
+       FN_IS_RECOMMEND_DISPLAY_MANUAL() AS `is_recommend_display_manual`,
+       `p`.`useing` AS `useing`, `p`.`mem_id` AS `insert_id`,
+       FN_get_memname(`p`.`mem_id`) AS `insert_member`, `p`.`post_update_mem_id` AS `update_id`,
+       FN_get_memname(`p`.`post_update_mem_id`) AS `update_member`,
+       `p`.`post_datetime` AS `insert_date`, DATE_FORMAT(`p`.`post_datetime`,'%Y-%m-%d') AS `insert_date_ymd`,
+       `p`.`post_updated_datetime` AS `update_date`, DATE_FORMAT(`p`.`post_updated_datetime`,'%Y-%m-%d') AS `update_date_ymd`,
+       IF(`p`.`useing` = 1,'사용','미사용') AS `useing_text`, `p`.`post_del` AS `is_deleted`
+FROM `post` `p`;
+
+CREATE VIEW `v_post_tag` AS 
+SELECT `pt`.`pta_id` AS `pta_id`, `pt`.`post_id` AS `post_id`, `pt`.`brd_id` AS `brd_id`,
+       `pt`.`pta_tag` AS `pta_tag`, FN_GET_POST_TITLE(`pt`.`post_id`) AS `post_title`,
+       `pt`.`is_show_to_search` AS `is_show_to_search`, `pt`.`pta_id` AS `no`, `pt`.`pta_id` AS `pkey`
+FROM `post_tag` `pt`;

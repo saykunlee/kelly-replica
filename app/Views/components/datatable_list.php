@@ -49,6 +49,55 @@
             };
         },
         methods: {
+            // 안전한 Feather Icons 초기화 함수
+            safeFeatherReplace() {
+                try {
+                    // 유효하지 않은 data-feather 속성을 가진 요소들 찾기
+                    const invalidIcons = $('[data-feather]').filter(function() {
+                        const iconName = $(this).attr('data-feather');
+                        // 빈 값이나 undefined 체크
+                        if (!iconName || iconName.trim() === '') {
+                            return true;
+                        }
+                        // Feather Icons에서 지원하는 아이콘인지 확인
+                        try {
+                            // feather.icons 객체가 존재하고 해당 아이콘이 있는지 확인
+                            if (typeof feather !== 'undefined' && feather.icons && feather.icons[iconName]) {
+                                return false; // 유효한 아이콘
+                            }
+                            return true; // 유효하지 않은 아이콘
+                        } catch (e) {
+                            return true; // 에러 발생 시 유효하지 않음으로 처리
+                        }
+                    });
+
+                    // 유효하지 않은 아이콘들 제거
+                    invalidIcons.each(function() {
+                        const $icon = $(this);
+                        const iconName = $icon.attr('data-feather');
+                        console.warn(`유효하지 않은 Feather 아이콘 제거: ${iconName}`);
+                        
+                        // 아이콘을 기본 텍스트나 다른 요소로 대체
+                        if (iconName && iconName.trim() !== '') {
+                            $icon.html(`[${iconName}]`);
+                        } else {
+                            $icon.html('[icon]');
+                        }
+                        
+                        // data-feather 속성 제거
+                        $icon.removeAttr('data-feather');
+                    });
+
+                    // 유효한 아이콘들만 feather.replace() 실행
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
+                } catch (error) {
+                    console.warn('Feather Icons 초기화 중 에러 발생:', error);
+                    // 에러 발생 시 모든 data-feather 속성 제거하여 재시도 방지
+                    $('[data-feather]').removeAttr('data-feather');
+                }
+            },
             getAjaxParams(dt_search, d) {
 
                 let params = new FormData();
@@ -187,10 +236,13 @@
 
                         }.bind(this),
                         drawCallback: function(settings) {
-
                             this.startPage = settings._iDisplayStart / settings._iDisplayLength + 1;
                             this.pageLength = settings._iDisplayLength;
 
+                            // 안전한 Feather Icons 초기화 (Vue 인스턴스 참조)
+                            setTimeout(() => {
+                                datatableApp.safeFeatherReplace();
+                            }, 100);
                         }.bind(this)
                     });
 
@@ -248,12 +300,10 @@
                             $('#no_table_settings').show();
                             $(dtId + ' tbody').show();
                             $(dtId + ' tfoot').hide();
-                            // feather.replace() 호출 전에 아이콘이 유효한지 확인
-                            try {
-                                feather.replace();
-                            } catch (error) {
-                                console.error('Feather Icons replace error:', error);
-                            }
+                            // 안전한 Feather Icons 초기화 (Vue 인스턴스 참조)
+                            setTimeout(() => {
+                                datatableApp.safeFeatherReplace();
+                            }, 100);
                         }
                     });
 
@@ -289,4 +339,28 @@
             //this.ini_dt('list', {}, null); // 빈 객체를 기본 검색 파라미터로 전달
         }
     }).mount('#app_datatable');
+
+    // 전역 Feather Icons 에러 핸들러
+    window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('toSvg')) {
+            console.warn('Feather Icons 에러 차단:', e.message);
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // 전역 feather.replace 함수 오버라이드 (안전한 버전)
+    if (typeof feather !== 'undefined') {
+        const originalReplace = feather.replace;
+        feather.replace = function() {
+            try {
+                return originalReplace.apply(this, arguments);
+            } catch (error) {
+                console.warn('Feather Icons replace 에러 차단:', error);
+                // 에러 발생 시 모든 data-feather 속성 제거
+                $('[data-feather]').removeAttr('data-feather');
+                return this;
+            }
+        };
+    }
 </script>
