@@ -77,12 +77,8 @@
                         const iconName = $icon.attr('data-feather');
                         console.warn(`유효하지 않은 Feather 아이콘 제거: ${iconName}`);
                         
-                        // 아이콘을 기본 텍스트나 다른 요소로 대체
-                        if (iconName && iconName.trim() !== '') {
-                            $icon.html(`[${iconName}]`);
-                        } else {
-                            $icon.html('[icon]');
-                        }
+                        // 아이콘을 x 표기로 대체
+                        $icon.html('<span style="color: #dc3545; font-weight: bold;">✕</span>');
                         
                         // data-feather 속성 제거
                         $icon.removeAttr('data-feather');
