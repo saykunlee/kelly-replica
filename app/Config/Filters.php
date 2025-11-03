@@ -34,6 +34,11 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+        // RESTful API 필터
+        'apiVersion'    => \App\Filters\ApiVersionFilter::class,
+        'rateLimit'     => \App\Filters\RateLimitFilter::class,
+        'etag'          => \App\Filters\ETagFilter::class,
+        'apiCors'       => \App\Filters\RestApiCorsFilter::class,
     ];
 
     /**
@@ -103,5 +108,22 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        // RESTful API 필터 적용
+        'apiVersion' => [
+            'before' => ['api/*'],
+            'after' => ['api/*'],
+        ],
+        'rateLimit' => [
+            'before' => ['api/*'],
+            'after' => ['api/*'],
+        ],
+        'etag' => [
+            'after' => ['api/*'],
+        ],
+        'apiCors' => [
+            'before' => ['api/*'],
+            'after' => ['api/*'],
+        ],
+    ];
 }

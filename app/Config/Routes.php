@@ -23,15 +23,46 @@ $routes->set404Override();
 $routes->setAutoRoute(false);
 /*
  * --------------------------------------------------------------------
- * API Routing
+ * RESTful API Routing (v1)
  * --------------------------------------------------------------------
  */
 
-// API 요청을 처리하기 위해 동적 라우트를 설정합니다.
-// /api/{controller}/{method} 형식의 URL을 처리합니다.
-$routes->get('/api/(:segment)', 'RouteHandler::handle/$1'); // GET 요청: 기본 메서드는 'index'
-$routes->post('/api/(:segment)/(:segment)', 'RouteHandler::handle/$1/$2'); // POST 요청: 메서드를 지정할 수 있음
-$routes->get('/api/(:segment)/(:segment)', 'RouteHandler::handle/$1/$2'); // GET 요청: 메서드를 지정할 수 있음
+// API v1 라우트 그룹
+$routes->group('api/v1', ['namespace' => 'App\Controllers\Api\V1'], function ($routes) {
+    // 비동기 작업 상태 조회
+    $routes->resource('jobs', ['only' => ['show', 'delete']]);
+    
+    // 회원 리소스 (RESTful)
+    $routes->resource('members', ['controller' => 'MembersController']);
+    
+    // 예제 리소스 (RESTful)
+    $routes->resource('examples', ['controller' => 'ExampleResourceController']);
+    
+    // 커스텀 엔드포인트 (비동기 작업 예제)
+    $routes->post('examples/async-task', 'ExampleResourceController::createAsyncTask');
+    $routes->post('examples/bulk-import', 'ExampleResourceController::bulkImport');
+});
+
+/*
+ * --------------------------------------------------------------------
+ * Legacy API Routing
+ * --------------------------------------------------------------------
+ * 
+ * 중요: RESTful API 버전 경로(v1, v2 등)는 제외됩니다.
+ * Legacy API는 /api/{controller}/{method} 패턴만 처리합니다.
+ * 
+ * 예시:
+ * - ✅ /api/member-api/get-member-list (Legacy API)
+ * - ✅ /api/board-api/get-board-group-list (Legacy API)  
+ * - ❌ /api/v1/members (RESTful API - 위에서 이미 처리됨)
+ * - ❌ /api/v2/members (RESTful API - 위에서 이미 처리됨)
+ */
+
+// RESTful API 버전 경로가 아닌 경우만 Legacy API로 처리
+// (?!v\d+) - negative lookahead: v1, v2, v3... 등으로 시작하지 않는 경우만 매칭
+$routes->get('/api/(?!v\d+)(:segment)', 'RouteHandler::handle/$1'); // GET 요청: 기본 메서드는 'index'
+$routes->post('/api/(?!v\d+)(:segment)/(:segment)', 'RouteHandler::handle/$1/$2'); // POST 요청: 메서드를 지정할 수 있음
+$routes->get('/api/(?!v\d+)(:segment)/(:segment)', 'RouteHandler::handle/$1/$2'); // GET 요청: 메서드를 지정할 수 있음
 
 /*
  * --------------------------------------------------------------------
@@ -39,7 +70,7 @@ $routes->get('/api/(:segment)/(:segment)', 'RouteHandler::handle/$1/$2'); // GET
  * --------------------------------------------------------------------
  */
 
-// 기본 경로 설정
+// 기본 경로 설정 
 $routes->get('/', 'Admin\AdminController::index');
 $routes->get('/admin', 'Admin\AdminController::index');
 $routes->get('/user', 'User\PageController::index');
