@@ -168,5 +168,60 @@ class MembersController extends RestApiController
 
         return $item;
     }
+
+    /**
+     * 테스트용 API 엔드포인트
+     * GET /api/v1/members/test
+     * 
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function test(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        // 기본 요청 정보 수집
+        $testData = [
+            'message' => 'Members API 테스트 엔드포인트',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'request_info' => [
+                'method' => $this->request->getMethod(),
+                'uri' => (string) $this->request->getUri(),
+                'ip_address' => $this->request->getIPAddress(),
+                'user_agent' => $this->request->getUserAgent()->getAgentString(),
+            ],
+            'headers' => [
+                'content_type' => $this->request->getHeaderLine('Content-Type'),
+                'accept' => $this->request->getHeaderLine('Accept'),
+                'api_version' => $this->request->getHeaderLine('X-API-Version'),
+            ],
+            'query_params' => $this->request->getGet(),
+            'controller_info' => [
+                'resource_name' => $this->resourceName,
+                'api_version' => $this->apiVersion,
+                'model_name' => $this->modelName,
+                'etag_enabled' => $this->enableETag,
+                'cache_max_age' => $this->cacheMaxAge,
+            ],
+            'environment' => [
+                'ci_environment' => ENVIRONMENT,
+                'php_version' => PHP_VERSION,
+            ],
+        ];
+
+        return $this->respond([
+            'status' => 'success',
+            'data' => $testData,
+            'links' => [
+                [
+                    'rel' => 'self',
+                    'href' => base_url("api/{$this->apiVersion}/members/test"),
+                    'method' => 'GET',
+                ],
+                [
+                    'rel' => 'collection',
+                    'href' => base_url("api/{$this->apiVersion}/members"),
+                    'method' => 'GET',
+                ],
+            ],
+        ]);
+    }
 }
 

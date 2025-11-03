@@ -27,21 +27,55 @@ $routes->setAutoRoute(false);
  * --------------------------------------------------------------------
  */
 
-// API v1 라우트 그룹
+// API v1 라우트 그룹 - 커스텀 엔드포인트만 명시적 정의
 $routes->group('api/v1', ['namespace' => 'App\Controllers\Api\V1'], function ($routes) {
-    // 비동기 작업 상태 조회
-    $routes->resource('jobs', ['only' => ['show', 'delete']]);
-    
-    // 회원 리소스 (RESTful)
-    $routes->resource('members', ['controller' => 'MembersController']);
-    
-    // 예제 리소스 (RESTful)
-    $routes->resource('examples', ['controller' => 'ExampleResourceController']);
-    
-    // 커스텀 엔드포인트 (비동기 작업 예제)
+    // 커스텀 엔드포인트 (동적 라우팅보다 우선)
+    $routes->get('members/test', 'MembersController::test');
     $routes->post('examples/async-task', 'ExampleResourceController::createAsyncTask');
     $routes->post('examples/bulk-import', 'ExampleResourceController::bulkImport');
+    
+    // 참고: 일반 RESTful 엔드포인트는 아래 동적 라우팅으로 자동 처리됨
+    // - GET/POST    /api/v1/members, /api/v1/examples, /api/v1/jobs
+    // - GET/PUT/PATCH/DELETE /api/v1/members/{id}, /api/v1/examples/{id}, /api/v1/jobs/{id}
 });
+
+/*
+ * --------------------------------------------------------------------
+ * RESTful API 동적 라우팅
+ * --------------------------------------------------------------------
+ * 
+ * 명시적으로 정의되지 않은 RESTful API 리소스를 자동으로 라우팅
+ * 
+ * 패턴: /api/{version}/{resource}[/{id}]
+ * 
+ * 예시:
+ * - GET    /api/v1/products          → ProductsController::index()
+ * - GET    /api/v1/products/123      → ProductsController::show(123)
+ * - POST   /api/v1/products          → ProductsController::create()
+ * - PUT    /api/v1/products/123      → ProductsController::update(123)
+ * - PATCH  /api/v1/products/123      → ProductsController::patch(123)
+ * - DELETE /api/v1/products/123      → ProductsController::delete(123)
+ * 
+ * 동작 방식:
+ * 1. 위에서 명시적으로 정의된 라우트가 우선 매칭됨
+ * 2. 매칭되지 않은 /api/v{숫자}/{리소스} 패턴은 동적 라우팅으로 처리
+ * 3. RestfulRouteHandler가 해당 컨트롤러 존재 여부 확인 후 라우팅
+ * 4. 컨트롤러가 없으면 404 반환
+ */
+
+// RESTful API 동적 라우팅 (리소스 ID 있음)
+$routes->match(
+    ['get', 'put', 'patch', 'delete'],
+    'api/(v\d+)/(:segment)/(:segment)',
+    'RestfulRouteHandler::handle/$1/$2/$3'
+);
+
+// RESTful API 동적 라우팅 (리소스 ID 없음)
+$routes->match(
+    ['get', 'post'],
+    'api/(v\d+)/(:segment)',
+    'RestfulRouteHandler::handle/$1/$2'
+);
 
 /*
  * --------------------------------------------------------------------

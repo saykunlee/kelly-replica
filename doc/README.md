@@ -21,6 +21,14 @@
   - 주요 컴포넌트 설명
   - 확장 가이드
 
+- **[dynamic-restful-routing.md](./dynamic-restful-routing.md)** 🚀  
+  RESTful API 동적 라우팅 가이드 (한글)
+  - 자동 라우팅 기능
+  - 라우팅 우선순위 설명
+  - 네이밍 규칙
+  - 성능 고려사항
+  - 실전 예시
+
 ### 2. 기존 (Legacy) API 분석
 
 - **[legacy-api-structure.md](./legacy-api-structure.md)** 🔍  
@@ -104,7 +112,12 @@
 2. **API 개발 시작하기**  
    → [restful-api-guide.md](./restful-api-guide.md) 참조 ⭐
 
-3. **심화 학습**  
+3. **동적 라우팅 활용하기** 🚀  
+   → [dynamic-restful-routing.md](./dynamic-restful-routing.md) 참조  
+   - 컨트롤러만 만들면 자동 라우팅
+   - Routes.php 수정 불필요
+
+4. **심화 학습**  
    → [api-design](./api-design) 문서 및 Azure PDF 가이드 참조
 
 ---
@@ -117,6 +130,7 @@ doc/
 │
 ├── restful-api-guide.md                        # ⭐ RESTful API 사용 가이드
 ├── restful-api-structure.md                    # RESTful API 구조 문서
+├── dynamic-restful-routing.md                  # 🚀 동적 라우팅 가이드
 │
 ├── legacy-api-structure.md                     # 🔍 기존 API 분석
 ├── naming-convention-examples.md               # 🏷️ Naming Convention 예시
@@ -141,6 +155,10 @@ doc/
 
 ## 📝 문서 업데이트 이력
 
+- **2025-11-03**: RESTful API 동적 라우팅 기능 추가 🚀
+  - RestfulRouteHandler 구현
+  - 자동 라우팅 문서 작성 (dynamic-restful-routing.md)
+  - Routes.php 간소화 (커스텀 엔드포인트만 명시적 정의)
 - **2025-11-03**: 라우팅 분리 가이드 추가 (Negative Lookahead 패턴)
 - **2025-11-03**: Routes.php 업데이트 (Legacy와 RESTful API 명확히 분리)
 - **2025-11-03**: Naming Convention 상세 예시 문서 추가 (100개 이상 매핑 예시)
