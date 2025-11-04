@@ -34,6 +34,7 @@ class ComposerStaticInit657ac079313fab046eb8c29fe1d6992b
         ),
         'F' => 
         array (
+            'Firebase\\JWT\\' => 13,
             'Faker\\' => 6,
         ),
         'D' => 
@@ -75,6 +76,10 @@ class ComposerStaticInit657ac079313fab046eb8c29fe1d6992b
         'Kint\\' => 
         array (
             0 => __DIR__ . '/..' . '/kint-php/kint/src',
+        ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
         ),
         'Faker\\' => 
         array (
@@ -126,6 +131,10 @@ class ComposerStaticInit657ac079313fab046eb8c29fe1d6992b
         'App\\Controllers\\Api\\EstimateApi' => __DIR__ . '/../..' . '/app/Controllers/Api/EstimateApi.php',
         'App\\Controllers\\Api\\MemberApi' => __DIR__ . '/../..' . '/app/Controllers/Api/MemberApi.php',
         'App\\Controllers\\Api\\MenuApi' => __DIR__ . '/../..' . '/app/Controllers/Api/MenuApi.php',
+        'App\\Controllers\\Api\\V1\\AuthController' => __DIR__ . '/../..' . '/app/Controllers/Api/V1/AuthController.php',
+        'App\\Controllers\\Api\\V1\\ExampleResourceController' => __DIR__ . '/../..' . '/app/Controllers/Api/V1/ExampleResourceController.php',
+        'App\\Controllers\\Api\\V1\\JobsController' => __DIR__ . '/../..' . '/app/Controllers/Api/V1/JobsController.php',
+        'App\\Controllers\\Api\\V1\\MembersController' => __DIR__ . '/../..' . '/app/Controllers/Api/V1/MembersController.php',
         'App\\Controllers\\BaseController' => __DIR__ . '/../..' . '/app/Controllers/BaseController.php',
         'App\\Controllers\\Base\\BaseAdminController' => __DIR__ . '/../..' . '/app/Controllers/Base/BaseAdminController.php',
         'App\\Controllers\\Base\\BaseApiController' => __DIR__ . '/../..' . '/app/Controllers/Base/BaseApiController.php',
@@ -134,9 +143,19 @@ class ComposerStaticInit657ac079313fab046eb8c29fe1d6992b
         'App\\Controllers\\Base\\ReservationController' => __DIR__ . '/../..' . '/app/Controllers/Base/ReservationController.php',
         'App\\Controllers\\Base\\UnyictController' => __DIR__ . '/../..' . '/app/Controllers/Base/UnyictController.php',
         'App\\Controllers\\Home' => __DIR__ . '/../..' . '/app/Controllers/Home.php',
+        'App\\Controllers\\RestfulRouteHandler' => __DIR__ . '/../..' . '/app/Controllers/RestfulRouteHandler.php',
         'App\\Controllers\\RouteHandler' => __DIR__ . '/../..' . '/app/Controllers/RouteHandler.php',
         'App\\Controllers\\Upload_ckeditor' => __DIR__ . '/../..' . '/app/Controllers/Upload_ckeditor.php',
         'App\\Controllers\\User\\PageController' => __DIR__ . '/../..' . '/app/Controllers/User/PageController.php',
+        'App\\Filters\\ApiVersionFilter' => __DIR__ . '/../..' . '/app/Filters/ApiVersionFilter.php',
+        'App\\Filters\\ETagFilter' => __DIR__ . '/../..' . '/app/Filters/ETagFilter.php',
+        'App\\Filters\\JwtAuthFilter' => __DIR__ . '/../..' . '/app/Filters/JwtAuthFilter.php',
+        'App\\Filters\\RateLimitFilter' => __DIR__ . '/../..' . '/app/Filters/RateLimitFilter.php',
+        'App\\Filters\\RestApiCorsFilter' => __DIR__ . '/../..' . '/app/Filters/RestApiCorsFilter.php',
+        'App\\Libraries\\JwtHandler' => __DIR__ . '/../..' . '/app/Libraries/JwtHandler.php',
+        'App\\Libraries\\RestApi\\AsyncJobHandler' => __DIR__ . '/../..' . '/app/Libraries/RestApi/AsyncJobHandler.php',
+        'App\\Libraries\\RestApi\\RestApiController' => __DIR__ . '/../..' . '/app/Libraries/RestApi/RestApiController.php',
+        'App\\Libraries\\RestApi\\RestApiResponse' => __DIR__ . '/../..' . '/app/Libraries/RestApi/RestApiResponse.php',
         'App\\Models\\BaseModel' => __DIR__ . '/../..' . '/app/Models/BaseModel.php',
         'App\\Models\\DatatableColumnModel' => __DIR__ . '/../..' . '/app/Models/DatatableColumnModel.php',
         'App\\Models\\DatatableSettingsModel' => __DIR__ . '/../..' . '/app/Models/DatatableSettingsModel.php',
@@ -584,6 +603,7 @@ class ComposerStaticInit657ac079313fab046eb8c29fe1d6992b
         'Config\\Pager' => __DIR__ . '/../..' . '/app/Config/Pager.php',
         'Config\\Paths' => __DIR__ . '/../..' . '/app/Config/Paths.php',
         'Config\\Publisher' => __DIR__ . '/../..' . '/app/Config/Publisher.php',
+        'Config\\RestApi' => __DIR__ . '/../..' . '/app/Config/RestApi.php',
         'Config\\Routing' => __DIR__ . '/../..' . '/app/Config/Routing.php',
         'Config\\Security' => __DIR__ . '/../..' . '/app/Config/Security.php',
         'Config\\Services' => __DIR__ . '/../..' . '/app/Config/Services.php',
@@ -1124,6 +1144,14 @@ class ComposerStaticInit657ac079313fab046eb8c29fe1d6992b
         'Faker\\Provider\\zh_TW\\Text' => __DIR__ . '/..' . '/fakerphp/faker/src/Faker/Provider/zh_TW/Text.php',
         'Faker\\UniqueGenerator' => __DIR__ . '/..' . '/fakerphp/faker/src/Faker/UniqueGenerator.php',
         'Faker\\ValidGenerator' => __DIR__ . '/..' . '/fakerphp/faker/src/Faker/ValidGenerator.php',
+        'Firebase\\JWT\\BeforeValidException' => __DIR__ . '/..' . '/firebase/php-jwt/src/BeforeValidException.php',
+        'Firebase\\JWT\\CachedKeySet' => __DIR__ . '/..' . '/firebase/php-jwt/src/CachedKeySet.php',
+        'Firebase\\JWT\\ExpiredException' => __DIR__ . '/..' . '/firebase/php-jwt/src/ExpiredException.php',
+        'Firebase\\JWT\\JWK' => __DIR__ . '/..' . '/firebase/php-jwt/src/JWK.php',
+        'Firebase\\JWT\\JWT' => __DIR__ . '/..' . '/firebase/php-jwt/src/JWT.php',
+        'Firebase\\JWT\\JWTExceptionWithPayloadInterface' => __DIR__ . '/..' . '/firebase/php-jwt/src/JWTExceptionWithPayloadInterface.php',
+        'Firebase\\JWT\\Key' => __DIR__ . '/..' . '/firebase/php-jwt/src/Key.php',
+        'Firebase\\JWT\\SignatureInvalidException' => __DIR__ . '/..' . '/firebase/php-jwt/src/SignatureInvalidException.php',
         'Kint\\CallFinder' => __DIR__ . '/..' . '/kint-php/kint/src/CallFinder.php',
         'Kint\\FacadeInterface' => __DIR__ . '/..' . '/kint-php/kint/src/FacadeInterface.php',
         'Kint\\Kint' => __DIR__ . '/..' . '/kint-php/kint/src/Kint.php',

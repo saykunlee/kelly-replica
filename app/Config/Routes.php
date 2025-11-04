@@ -29,8 +29,20 @@ $routes->setAutoRoute(false);
 
 // API v1 라우트 그룹 - 커스텀 엔드포인트만 명시적 정의
 $routes->group('api/v1', ['namespace' => 'App\Controllers\Api\V1'], function ($routes) {
-    // 커스텀 엔드포인트 (동적 라우팅보다 우선)
+    // Auth API (인증 관련 엔드포인트)
+    $routes->post('auth/login', 'AuthController::login');
+    $routes->post('auth/logout', 'AuthController::logout', ['filter' => 'jwtAuth']);
+    $routes->post('auth/refresh', 'AuthController::refresh');
+    $routes->post('auth/verify', 'AuthController::verify');
+    $routes->get('auth/me', 'AuthController::me', ['filter' => 'jwtAuth']);
+    $routes->post('auth/change-password', 'AuthController::changePassword', ['filter' => 'jwtAuth']);
+    $routes->post('auth/force-logout', 'AuthController::forceLogout', ['filter' => 'jwtAuth']);
+    $routes->get('auth/sessions', 'AuthController::getSessions', ['filter' => 'jwtAuth']);
+    
+    // Members API 커스텀 엔드포인트
     $routes->get('members/test', 'MembersController::test');
+    
+    // Examples API 커스텀 엔드포인트
     $routes->post('examples/async-task', 'ExampleResourceController::createAsyncTask');
     $routes->post('examples/bulk-import', 'ExampleResourceController::bulkImport');
     

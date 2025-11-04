@@ -114,17 +114,16 @@ class RestApiResponse
      * 
      * @param string $rel 관계명 (self, next, prev, create, update, delete 등)
      * @param string $href URI
-     * @param string $action HTTP 메서드
+     * @param string $method HTTP 메서드
      * @param array $types MIME 타입 배열
      * @return array
      */
-    public static function createLink(string $rel, string $href, string $action = 'GET', array $types = ['application/json']): array
+    public static function createLink(string $rel, string $href, string $method = 'GET', array $types = ['application/json']): array
     {
         return [
             'rel' => $rel,
             'href' => $href,
-            'action' => $action,
-            'types' => $types,
+            'method' => $method,
         ];
     }
 
@@ -145,14 +144,14 @@ class RestApiResponse
      * 생성 성공 응답 (201 Created)
      * 
      * @param mixed $data 생성된 리소스 데이터
-     * @param string $location 리소스 위치 URL
+     * @param string $location 리소스 위치 URL (HTTP Header용, 응답 본문에는 포함되지 않음)
      * @param array $links HATEOAS 링크
      * @return array
      */
     public static function created($data, string $location, array $links = []): array
     {
         $response = self::success($data, 201, $links);
-        $response['location'] = $location;
+        $response['message'] = '리소스가 생성되었습니다';
         return $response;
     }
 

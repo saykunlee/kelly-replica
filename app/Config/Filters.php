@@ -39,6 +39,7 @@ class Filters extends BaseFilters
         'rateLimit'     => \App\Filters\RateLimitFilter::class,
         'etag'          => \App\Filters\ETagFilter::class,
         'apiCors'       => \App\Filters\RestApiCorsFilter::class,
+        'jwtAuth'       => \App\Filters\JwtAuthFilter::class,
     ];
 
     /**

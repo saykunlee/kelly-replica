@@ -1,0 +1,186 @@
+---
+description: Meta-rule for continuous evolution of Cursor coding rules. Enables AI models to autonomously learn emerging code patterns and refine development standards.
+
+globs: **/*
+alwaysApply: true
+version: "2.0"
+lastUpdated: "2025-10-30"
+status: active
+tags: [meta, ai-self-learning, rule-governance]
+---
+
+# 📘 Cursor Rule Governance 2.0
+
+## 1. Purpose  
+To maintain a **living rule ecosystem** that adapts automatically to new coding trends, tools, and practices.  
+This meta-rule defines *how other rules evolve*, ensuring that the AI collaborator continuously improves through exposure to real-world development patterns.
+
+---
+
+## 2. Improvement Triggers  
+
+| Category | Trigger | Typical Example |
+|-----------|----------|----------------|
+| **New Pattern** | Novel code constructs not yet covered | Adoption of new ORM, query helper, or state-management library |
+| **Repetition** | Identical code fragments appear in 3 + files | Repeated `fetch` or `try-catch` blocks |
+| **Common Errors** | Bugs recurring across modules | Mis-typed enum, unsafe casting |
+| **Tooling Shift** | New dev tool or library introduced widely | Migration from Prisma to Drizzle |
+| **Best Practice Evolution** | Updated community or internal standard | Next.js App Router patterns |
+
+---
+
+## 3. Analysis Workflow  
+
+1. Compare new code with existing `.cursor/rules/*.mdc`.  
+2. Detect repetition and standardization candidates.  
+3. Reference external documentation (official or internal).  
+4. Verify consistency of error handling and test strategy.  
+5. Record candidate improvements in `rule-updates.log` or via Pull Request.  
+
+> **AI Guidance:** When similar feedback appears in 3 + code reviews, propose a new rule draft automatically.
+
+---
+
+## 4. Rule Update Policy  
+
+### ➕ Add New Rules When  
+- A pattern occurs in ≥ 3 files.  
+- The same code-review issue is raised repeatedly.  
+- A bug can be prevented via pattern enforcement.  
+- New performance or security techniques emerge.  
+
+### 🔄 Modify Existing Rules When  
+- Better or cleaner examples exist in production code.  
+- Edge cases or exceptions have been identified.  
+- Related rules are updated or merged.  
+- Underlying implementation (framework/library) changes.  
+
+---
+
+## 5. Example of Pattern Recognition  
+
+```typescript
+// Recurrent observed pattern:
+const users = await prisma.user.findMany({
+  select: { id: true, email: true },
+  where: { status: 'ACTIVE' },
+});
+
+// Recommended to encode into: prisma-select.mdc
+// Guidance:
+// - Define standard select fields
+// - Encourage explicit status filtering
+// - Add pagination or batching for scalability
+```
+
+> **AI Action:** When a new repeated query shape is detected, suggest a new `.mdc` rule referencing real code.
+
+---
+
+## 6. Rule Quality Checklist  
+
+- ✅ Actionable and concise wording  
+- ✅ Example code drawn from production, not hypothetical  
+- ✅ References and links kept current  
+- ✅ Consistent enforcement pattern across related rules  
+- ✅ Clear "Good / Bad" comparative examples  
+
+```typescript
+// ✅ Good
+await prisma.user.findMany({ select: { id: true, email: true } });
+
+// ❌ Bad
+await prisma.user.findMany({ select: { * } });
+```
+
+---
+
+## 7. Continuous Improvement Loop  
+
+| Source | Observation | Action |
+|---------|--------------|--------|
+| Code Reviews | Repeated human feedback | Generate AI rule proposal |
+| Developer Q&A | Common misunderstandings | Add clarification section |
+| Refactors | Structural or naming changes | Update examples and globs |
+| Documentation | Outdated references | Auto-link update via crawler |
+| Test Suites | Low coverage on patterns | Introduce test-based lint rules |
+
+---
+
+## 8. Self-Learning Feedback (AI-Adaptive Section)  
+
+```markdown
+When the AI model encounters:
+- ≥ 3 occurrences of similar code in distinct modules, **and**
+- No existing rule addresses it,
+
+→ Automatically flag pattern for review:
+  - Suggest new `.mdc` file name
+  - Summarize pattern and file origins
+  - Include example diff for candidate rule
+```
+
+This section enables the model to act as a **junior rule researcher**, promoting self-evolving best practices.
+
+---
+
+## 9. Deprecation & Migration  
+
+- Mark obsolete rules with `status: deprecated` and `deprecatedSince: <version>`.  
+- Maintain backward compatibility references for a minimum of one major version.  
+- Create migration guidance linking old → new rule.  
+
+Example:
+```yaml
+status: deprecated
+deprecatedSince: "2.1"
+replacedBy: "error-handling-patterns.mdc"
+```
+
+---
+
+## 10. Documentation & Traceability  
+
+- Keep rule examples synchronized with actual repository code.  
+- Include external documentation links:  
+  - [Prisma Query Optimization Guide](https://www.prisma.io/docs/performance)  
+  - [Cursor Rule Formatting Guide](mdc:.cursor/rules/cursor-rules.mdc)  
+- Maintain change log with version, author, and rationale.  
+
+---
+
+## 11. AI Collaboration Principles  
+
+1. **Context Awareness** – Understand project scope, tech stack, and naming conventions.  
+2. **Feedback Integration** – Learn from commit messages and review summaries.  
+3. **Selective Memory** – Retain only validated, recurring patterns as future rules.  
+4. **Human Override** – Always allow developer confirmation before publishing new rule files.  
+
+---
+
+## 12. File Structure Recommendation  
+
+```
+.cursor/
+ └── rules/
+     ├── 000-meta-governance.mdc
+     ├── 010-prisma-select.mdc
+     ├── 020-error-handling.mdc
+     ├── 030-performance-patterns.mdc
+     └── deprecated/
+         └── legacy-api-patterns.mdc
+```
+
+This modular approach improves scalability and searchability.
+
+---
+Follow [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) for proper rule formatting and structure.
+
+## 13. Summary  
+
+**Cursor Rule Governance 2.0**  
+- ✅ Conforms to current `.mdc` schema  
+- ✅ Adds versioning, tagging, and lifecycle metadata  
+- ✅ Defines explicit AI self-learning behavior  
+- ✅ Enhances collaboration loop between developers and AI  
+- ✅ Establishes structured, modular rule architecture  

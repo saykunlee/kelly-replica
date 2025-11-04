@@ -127,6 +127,58 @@ kelly-replica/
 └── writable/            # 로그, 캐시, 세션 / Logs, Cache, Sessions
 ```
 
+## 📚 API 문서 / API Documentation
+
+이 프로젝트는 RESTful API를 제공하며, 체계적으로 정리된 문서가 준비되어 있습니다.
+
+This project provides RESTful API with well-organized documentation.
+
+### ⚡ 빠른 시작 / Quick Start
+
+**[➡️ 5분 빠른 시작 가이드](./doc/QUICKSTART.md)** ⚡
+
+30초 로그인 테스트부터 API 호출까지!
+
+### 🎯 역할별 문서 / Documentation by Role
+
+#### 프론트엔드 개발자 / Frontend Developers
+- **[frontend/](./doc/frontend/)** 📁 - 프론트엔드 전용 문서
+  - [integration-guide.md](./doc/frontend/integration-guide.md) - 통합 가이드 (필독)
+  - [SECURITY_FEATURES.md](./doc/frontend/SECURITY_FEATURES.md) 🔒 **v2.0 신규!**
+  - [auth-guide.md](./doc/frontend/auth-guide.md) - JWT 인증 상세
+  - [implementation-summary.md](./doc/frontend/implementation-summary.md) - 구현 보고서
+
+**🆕 v2.0 업데이트**: Refresh Token DB 저장, 토큰 블랙리스트, 동시 로그인 제한 추가!
+
+#### 백엔드 개발자 / Backend Developers
+- **[backend/](./doc/backend/)** 📁 - 백엔드 개발 가이드
+  - [restful-guide.md](./doc/backend/restful-guide.md) - RESTful API 개발
+  - [structure.md](./doc/backend/structure.md) - 프레임워크 구조
+  - [dynamic-routing.md](./doc/backend/dynamic-routing.md) - 동적 라우팅
+
+#### 외부 개발자 / External Developers
+- **[api/](./doc/api/)** 📁 - API 레퍼런스
+  - [reference.md](./doc/api/reference.md) - API 정의서
+  - [openapi.json](./doc/api/openapi.json) - OpenAPI 3.0 스펙
+  - [tools-guide.md](./doc/api/tools-guide.md) - Postman, Swagger 등
+
+### 📖 전체 문서 / Full Documentation
+
+**[➡️ 문서 센터 바로가기](./doc/README.md)** 📚
+
+다음 문서 카테고리가 있습니다:
+- **frontend/** - 프론트엔드 개발자용
+- **api/** - API 레퍼런스 및 도구
+- **backend/** - 백엔드 개발자용
+- **legacy/** - Legacy 시스템 분석
+- **design/** - API 설계 원칙
+- **scripts/** - 유틸리티 스크립트
+
+### 🧪 API 테스트 / API Testing
+
+**[tests/api/auth.http](./tests/api/auth.http)** - 40+ 테스트 케이스
+- REST Client로 즉시 테스트 가능
+
 ## 🧪 테스트 실행 / Running Tests
 
 ```bash

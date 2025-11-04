@@ -1,0 +1,253 @@
+---
+description: Comprehensive guide for creating, editing, and maintaining Cursor rules across the project, with AI-assisted self-learning enhancements.
+globs:
+  - "**/*.mdc"
+  - ".cursor/rules/**/*.mdc"
+alwaysApply: false
+version: "2.0.0"
+lastUpdated: "2025-10-30"
+status: active
+tags: [management, meta, ai-self-learning, maintenance]
+---
+
+# 🧭 Cursor Rules Management Guide 2.0
+
+> **마지막 업데이트:** 2025년 10월 30일  
+> **버전:** 2.0.0
+
+---
+
+## 1. Rule Structure Format
+
+Every cursor rule must follow this metadata and content structure:
+
+````markdown
+---
+description: Short description of the rule's purpose
+globs: optional/path/pattern/**/*
+alwaysApply: false
+version: "1.0"
+lastUpdated: "YYYY-MM-DD"
+---
+# Rule Title
+
+Explain the rule purpose and context.
+
+1. Step-by-step instructions
+2. Code examples
+3. Guidelines
+
+Example:
+```typescript
+// ✅ Good Example
+function goodExample() {
+  // Correct implementation
+}
+
+// ❌ Bad Example
+function badExample() {
+  // Incorrect implementation
+}
+```
+````
+
+---
+
+## 2. File Organization
+
+### 📂 Required Location
+All Cursor rule files **must reside in:**
+
+```
+PROJECT_ROOT/.cursor/rules/
+```
+
+### 🧱 Directory Structure
+```
+PROJECT_ROOT/
+├── .cursor/
+│   └── rules/
+│       ├── your-rule-name.mdc
+│       ├── another-rule.mdc
+│       └── cursor-rules.mdc
+└── ...
+```
+
+### 🧩 Naming Conventions
+- Use **kebab-case**
+- Use the **.mdc** extension
+- Be descriptive:  
+  Examples: `typescript-style.mdc`, `tailwind-styling.mdc`, `mdx-documentation.mdc`
+
+---
+
+## 3. Content Guidelines
+
+### ✍️ Writing Effective Rules
+
+1. **Be specific and actionable**
+2. **Include code examples** (both good and bad)
+3. **Reference other rules** using `mdc:` links
+4. **Keep scope narrow** – one concept per rule
+5. **Explain the rationale** – why it matters
+
+### 💡 Example Format
+
+```typescript
+// ✅ Good
+function processUser({ id, name }: { id: string; name: string }) {
+  return { id, displayName: name };
+}
+
+// ❌ Bad
+function processUser(id: string, name: string) {
+  return { id, displayName: name };
+}
+```
+
+### 🔗 File References
+
+To reference project files or other rules:
+
+```markdown
+[file.tsx](mdc:path/to/file.tsx)
+[typescript-style.mdc](mdc:.cursor/rules/typescript-style.mdc)
+```
+
+---
+
+## 4. Forbidden Locations
+
+**Never** place rule files in:
+- Project root
+- Source code folders (e.g. `src/`, `components/`)
+- Documentation or public directories
+- Any folder outside `.cursor/rules/`
+
+---
+
+## 5. Rule Categories
+
+Organize rules logically by purpose:
+
+| Category | Examples |
+|-----------|-----------|
+| **Code Style** | `typescript-style.mdc`, `css-conventions.mdc` |
+| **Architecture** | `component-patterns.mdc`, `folder-structure.mdc` |
+| **Documentation** | `mdx-documentation.mdc`, `readme-format.mdc` |
+| **Tools** | `testing-patterns.mdc`, `build-config.mdc` |
+| **Business Logic** | `estimate-write-system.mdc`, `golf-management-system.mdc` |
+| **Meta / AI** | `cursor-rules.mdc`, `self-improve.mdc`, `governance.mdc` |
+
+---
+
+## 6. Best Practices
+
+### ✅ Rule Creation Checklist
+
+- [ ] File placed in `.cursor/rules/`
+- [ ] Filename uses kebab-case
+- [ ] Includes YAML metadata
+- [ ] Contains title and structured sections
+- [ ] Provides both ✅ Good / ❌ Bad examples
+- [ ] References related rules or files
+- [ ] Includes `version` and `lastUpdated` fields
+
+### 🔁 Maintenance
+
+| Action | Description |
+|--------|--------------|
+| **Review regularly** | Keep up-to-date with codebase |
+| **Update examples** | Reflect real usage |
+| **Cross-reference** | Link related rules |
+| **Document changes** | Add changelog section |
+
+---
+
+## 7. Rule Update Workflow
+
+### 🕒 1. 자동 날짜 업데이트
+
+```bash
+# 한국 시간대 기준 현재 날짜
+TZ='Asia/Seoul' date '+%Y년 %m월 %d일'
+```
+
+### 🧾 2. 업데이트 체크리스트
+
+- [ ] **날짜 갱신**: 상단의 "마지막 업데이트" 변경
+- [ ] **버전 증가**: 주요 변경 시 버전 업데이트
+- [ ] **변경 이력 추가**: 하단 changelog 섹션 작성
+- [ ] **관련 규칙 확인**: 연관 파일 교차 검증
+- [ ] **예시 코드 검증**: 실제 프로젝트와 일치하는지 확인
+
+### ⚙️ 3. 자동화 스크립트 (수정 버전)
+
+```bash
+#!/bin/bash
+# update-rule-date.sh
+
+RULE_FILE="$1"
+if [ -z "$RULE_FILE" ]; then
+    echo "사용법: ./update-rule-date.sh <규칙파일경로>"
+    exit 1
+fi
+
+CURRENT_DATE_KR=$(TZ='Asia/Seoul' date '+%Y년 %m월 %d일')
+sed -i.bak "s/마지막 업데이트: .*/마지막 업데이트: ${CURRENT_DATE_KR}/" "$RULE_FILE"
+echo "규칙 파일 $RULE_FILE의 날짜가 ${CURRENT_DATE_KR}로 업데이트되었습니다."
+```
+
+---
+
+## 8. AI Self-Learning Feedback
+
+To enhance AI's ability as a **collaborative developer**, integrate this adaptive feedback mechanism:
+
+```markdown
+When the AI observes:
+- Repeated missing metadata across multiple rules
+- Outdated or duplicated rule structures
+- Common formatting or code-style issues
+
+→ It should propose:
+1. New `.mdc` governance or lint rule
+2. Version bump with explanation
+3. Cross-linking related rules automatically
+```
+
+> Example: If AI detects 3+ rules without version fields, suggest adding a `rule-versioning.mdc` template.
+
+---
+
+## 9. Rule Integrity Verification
+
+Each `.mdc` file should contain:
+
+```yaml
+version: "x.y.z"
+lastUpdated: "YYYY-MM-DD"
+checksum: "sha256:xxxxxxxxxxxxxxxxxxxx"
+```
+
+This enables CI/CD pipelines to verify the rule's integrity and detect tampering.
+
+---
+
+## 10. 변경 이력
+
+### v2.0.0 (2025-10-30)
+- AI Self-Learning Feedback 섹션 추가  
+- 자동화 스크립트 문법 오류 수정  
+- globs 및 메타데이터 완비  
+- Rule Integrity Verification 섹션 추가  
+- Cross-rule 참조 및 버전 관리 강화  
+
+### v1.2.0 (2025-01-27)
+- 자동 날짜 업데이트 가이드 추가  
+- Rule Update Workflow 강화  
+- Business Logic 규칙 확장    
+
+### v1.0.0 (2025-01-15)
+- 초기 Cursor Rules 가이드 작성  
+- 기본 구조 및 포맷 정의  

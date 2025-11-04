@@ -173,7 +173,7 @@ class RestApiController extends ResourceController
             $data = $this->getRequestData();
 
             // 유효성 검증
-            $validationResult = $this->validateData($data, $this->getValidationRules('create'));
+            $validationResult = $this->validateRequestData($data, $this->getValidationRules('create'));
             if ($validationResult !== true) {
                 return $this->respondWithValidationError($validationResult);
             }
@@ -238,7 +238,7 @@ class RestApiController extends ResourceController
             $data = $this->getRequestData();
 
             // 유효성 검증
-            $validationResult = $this->validateData($data, $this->getValidationRules('update'));
+            $validationResult = $this->validateRequestData($data, $this->getValidationRules('update'));
             if ($validationResult !== true) {
                 return $this->respondWithValidationError($validationResult);
             }
@@ -296,7 +296,7 @@ class RestApiController extends ResourceController
             $data = $this->getRequestData();
 
             // 부분 업데이트는 모든 필드가 선택적
-            $validationResult = $this->validateData($data, $this->getValidationRules('patch'), true);
+            $validationResult = $this->validateRequestData($data, $this->getValidationRules('patch'), true);
             if ($validationResult !== true) {
                 return $this->respondWithValidationError($validationResult);
             }
@@ -453,7 +453,7 @@ class RestApiController extends ResourceController
      * @param bool $isPartial 부분 검증 여부
      * @return bool|array true 또는 에러 배열
      */
-    protected function validateData(array $data, array $rules, bool $isPartial = false): bool|array
+    protected function validateRequestData(array $data, array $rules, bool $isPartial = false): bool|array
     {
         if (empty($rules)) {
             return true;

@@ -1,206 +1,238 @@
-# 📚 API 문서 디렉토리
+# 📚 Kelly API 문서 센터
 
-이 폴더는 RESTful API 프레임워크와 관련된 모든 문서를 포함하고 있습니다.
-
-## 📖 문서 목록
-
-### 1. RESTful API 프레임워크 문서
-
-- **[restful-api-guide.md](./restful-api-guide.md)** ⭐  
-  RESTful API 프레임워크 사용 가이드 (한글)
-  - 빠른 시작 가이드
-  - API 엔드포인트 사용법
-  - HTTP 메서드 가이드
-  - 고급 기능 (ETag, 비동기 작업, Rate Limiting)
-  - 예제 코드 및 테스트
-
-- **[restful-api-structure.md](./restful-api-structure.md)**  
-  RESTful API 프레임워크 구조 및 아키텍처 문서 (한글)
-  - 프로젝트 구조
-  - 아키텍처 개요
-  - 주요 컴포넌트 설명
-  - 확장 가이드
-
-- **[dynamic-restful-routing.md](./dynamic-restful-routing.md)** 🚀  
-  RESTful API 동적 라우팅 가이드 (한글)
-  - 자동 라우팅 기능
-  - 라우팅 우선순위 설명
-  - 네이밍 규칙
-  - 성능 고려사항
-  - 실전 예시
-
-### 2. 기존 (Legacy) API 분석
-
-- **[legacy-api-structure.md](./legacy-api-structure.md)** 🔍  
-  기존 API 시스템 구조 분석 (한글)
-  - 기존 라우팅 시스템 분석
-  - RouteHandler 동작 원리
-  - URL → Controller 매핑 과정
-  - kebab-case → camelCase 변환 규칙
-  - 실제 호출 흐름 예시
-
-- **[naming-convention-examples.md](./naming-convention-examples.md)** 🏷️  
-  Legacy API Naming Convention 상세 예시 (한글)
-  - 컨트롤러명/메서드명 변환 규칙
-  - 실제 URL → 메서드 매핑 100개 이상
-  - 변환 알고리즘 상세 설명
-  - 테스트 예시
-
-- **[routing-separation.md](./routing-separation.md)** 🛤️  
-  API 라우팅 분리 가이드 (한글)
-  - Legacy vs RESTful API 라우팅 분리 방법
-  - Negative Lookahead 패턴 설명
-  - 라우팅 처리 순서
-  - 테스트 시나리오
-
-- **[api-comparison.md](./api-comparison.md)** 📊  
-  Legacy API vs RESTful API 비교 (한글)
-  - 상세 비교표
-  - 실제 사용 예시 비교
-  - 시나리오별 권장 API
-  - 마이그레이션 전략
-  - 성능 비교
-
-### 3. API 설계 원칙
-
-- **[api-design](./api-design)**  
-  Azure API Design Best Practices 기반 API 개발 로드맵 (한글)
-  - API 설계 원칙 및 개념
-  - 리소스 및 URI 설계
-  - HTTP 메서드 및 응답 처리
-  - 데이터 최적화 및 동시성 관리
-  - API 운영, 보안, 테스트
-
-### 4. Azure 공식 가이드 (PDF)
-
-- **[Web API Design Best Practices - Azure Architecture Center _ Microsoft Learn.pdf](./Web%20API%20Design%20Best%20Practices%20-%20Azure%20Architecture%20Center%20_%20Microsoft%20Learn.pdf)**  
-  Azure의 웹 API 설계 모범 사례 가이드 (영문)
-
-- **[Web API Implementation - Azure Architecture Center _ Microsoft Learn.pdf](./Web%20API%20Implementation%20-%20Azure%20Architecture%20Center%20_%20Microsoft%20Learn.pdf)**  
-  Azure의 웹 API 구현 가이드 (영문)
+Kelly RESTful API 프레임워크의 모든 문서를 제공합니다.
 
 ---
 
-## 🚀 빠른 시작
+## ⚡ 빠른 시작
 
-### 기존 API 이해하기
-1. **기존 시스템 분석**  
-   → [legacy-api-structure.md](./legacy-api-structure.md) 읽기
-   - RouteHandler 동작 원리
-   - URL → Controller 매핑
-   - kebab-case → camelCase 변환
-
-2. **Naming Convention 상세**  
-   → [naming-convention-examples.md](./naming-convention-examples.md) 참조 🏷️
-   - 컨트롤러명/메서드명 변환 예시
-   - 실제 URL 매핑 테이블
-
-3. **라우팅 분리 이해**  
-   → [routing-separation.md](./routing-separation.md) 참조 🛤️
-   - Legacy vs RESTful 라우팅 분리
-   - Negative Lookahead 패턴
-
-4. **Legacy vs RESTful 비교**  
-   → [api-comparison.md](./api-comparison.md) 참조
-   - 실제 사용 예시
-   - 마이그레이션 전략
-
-### 새로운 RESTful API 사용하기
-1. **API 프레임워크 이해하기**  
-   → [restful-api-structure.md](./restful-api-structure.md) 읽기
-
-2. **API 개발 시작하기**  
-   → [restful-api-guide.md](./restful-api-guide.md) 참조 ⭐
-
-3. **동적 라우팅 활용하기** 🚀  
-   → [dynamic-restful-routing.md](./dynamic-restful-routing.md) 참조  
-   - 컨트롤러만 만들면 자동 라우팅
-   - Routes.php 수정 불필요
-
-4. **심화 학습**  
-   → [api-design](./api-design) 문서 및 Azure PDF 가이드 참조
+| 역할 | 시작 문서 | 소요 시간 |
+|-----|----------|----------|
+| **프론트엔드** | [QUICKSTART.md](./QUICKSTART.md) | 5분 |
+| **백엔드** | [backend/restful-guide.md](./backend/restful-guide.md) | 15분 |
+| **외부 개발자** | [api/reference.md](./api/reference.md) | 10분 |
 
 ---
 
-## 📁 문서 구성
+## 📁 문서 구조
 
 ```
 doc/
-├── README.md                                    # 이 문서
+├── README.md                          # 이 문서
+├── QUICKSTART.md                      # 5분 빠른 시작
+├── CHANGELOG.md                       # 변경 이력
+├── ENVIRONMENT_VARIABLES.md           # 환경 변수 가이드
+├── SECURITY_IMPLEMENTATION_COMPLETE.md # 보안 구현 상세
+├── DOCUMENTATION_RULES.md             # 📘 문서 작성 규칙
 │
-├── restful-api-guide.md                        # ⭐ RESTful API 사용 가이드
-├── restful-api-structure.md                    # RESTful API 구조 문서
-├── dynamic-restful-routing.md                  # 🚀 동적 라우팅 가이드
+├── frontend/                          # 프론트엔드 (3개)
+│   ├── README.md
+│   ├── integration-guide.md           # ⭐ 핵심 통합 가이드
+│   └── SECURITY_FEATURES.md           # 🔒 보안 기능 (v2.0)
 │
-├── legacy-api-structure.md                     # 🔍 기존 API 분석
-├── naming-convention-examples.md               # 🏷️ Naming Convention 예시
-├── routing-separation.md                       # 🛤️ 라우팅 분리 가이드
-├── api-comparison.md                           # 📊 API 비교
+├── api/                               # API 레퍼런스 (4개)
+│   ├── README.md
+│   ├── reference.md                   # API 정의서
+│   ├── openapi.json                   # OpenAPI 스펙
+│   └── tools-guide.md                 # 도구 활용
 │
-├── api-design                                   # API 설계 로드맵
-├── Web API Design Best Practices...pdf         # Azure 설계 가이드
-└── Web API Implementation...pdf                 # Azure 구현 가이드
+├── backend/                           # 백엔드 (4개)
+│   ├── README.md
+│   ├── restful-guide.md               # RESTful API 개발
+│   ├── structure.md                   # 프레임워크 구조
+│   └── dynamic-routing.md             # 동적 라우팅
+│
+├── legacy/                            # Legacy (5개)
+│   ├── README.md
+│   ├── api-structure.md               # 구조 분석
+│   ├── naming-conventions.md          # 네이밍 규칙
+│   ├── routing-separation.md          # 라우팅 분리
+│   └── comparison.md                  # Legacy vs RESTful
+│
+├── design/                            # 설계 (4개)
+│   ├── README.md
+│   ├── api-design                     # 설계 로드맵
+│   └── azure/                         # Azure PDF 문서
+│
+└── scripts/                           # 스크립트 (2개)
+    ├── README.md
+    └── test-routing.sh
 ```
 
----
-
-## 🔗 관련 링크
-
-- [Azure API Design Best Practices](https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design)
-- [Azure API Implementation Guide](https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-implementation)
-- [Richardson Maturity Model](https://martinfowler.com/articles/richardsonMaturityModel.html)
-- [REST API Tutorial](https://restfulapi.net/)
+**총 문서: 27개** (폴더별 README 포함)
 
 ---
 
-## 📝 문서 업데이트 이력
+## 🎯 역할별 가이드
 
-- **2025-11-03**: RESTful API 동적 라우팅 기능 추가 🚀
-  - RestfulRouteHandler 구현
-  - 자동 라우팅 문서 작성 (dynamic-restful-routing.md)
-  - Routes.php 간소화 (커스텀 엔드포인트만 명시적 정의)
-- **2025-11-03**: 라우팅 분리 가이드 추가 (Negative Lookahead 패턴)
-- **2025-11-03**: Routes.php 업데이트 (Legacy와 RESTful API 명확히 분리)
-- **2025-11-03**: Naming Convention 상세 예시 문서 추가 (100개 이상 매핑 예시)
-- **2025-11-03**: Legacy API 구조 분석 문서 업데이트 (메서드명 변환 강조)
-- **2025-11-03**: Legacy API 구조 분석 문서 추가
-- **2025-11-03**: Legacy vs RESTful API 비교 문서 추가
-- **2025-11-01**: RESTful API 프레임워크 문서 작성
-- **2025-11-01**: doc 폴더로 문서 정리 및 이동
+### 🎨 프론트엔드 개발자
+
+**필수 문서 (2개만!):**
+
+1. **[frontend/integration-guide.md](./frontend/integration-guide.md)** ⭐
+   - 빠른 시작부터 완전한 구현까지 모든 것
+   - Next.js API Client, Auth Service, Hook 예제
+   - 에러 처리, 보안, FAQ
+   - **이 문서 하나로 모든 개발 가능**
+
+2. **[frontend/SECURITY_FEATURES.md](./frontend/SECURITY_FEATURES.md)** 🔒
+   - v2.0 신규 보안 기능
+   - Refresh Token DB 저장, 블랙리스트, 동시 로그인 제한
+   - 프론트엔드 구현 가이드
+   - **기존 코드는 변경 불필요!**
+
+**선택 문서:**
+- [QUICKSTART.md](./QUICKSTART.md) - 5분 빠른 테스트
+- [api/reference.md](./api/reference.md) - API 상세 스펙
+
+---
+
+### 🔧 백엔드 개발자
+
+**필수 문서 (2개만!):**
+
+1. **[backend/restful-guide.md](./backend/restful-guide.md)** ⭐
+   - RESTful API 개발 가이드
+   - 컨트롤러 생성, CRUD 구현
+   - ETag, 비동기 작업 등 고급 기능
+
+2. **[SECURITY_IMPLEMENTATION_COMPLETE.md](./SECURITY_IMPLEMENTATION_COMPLETE.md)** 🔒
+   - v2.0 보안 기능 구현 상세
+   - DB 스키마, 모델, SQL 샘플
+   - 배치 작업 설정
+
+**선택 문서:**
+- [backend/structure.md](./backend/structure.md) - 프레임워크 내부 구조
+- [backend/dynamic-routing.md](./backend/dynamic-routing.md) - 자동 라우팅
+
+---
+
+### 📘 외부 개발자 / AI 에이전트
+
+**필수 문서 (1개만!):**
+
+1. **[api/reference.md](./api/reference.md)** 📘
+   - 모든 API 엔드포인트 스펙
+   - Request/Response 예시
+   - JavaScript, Python, cURL 예제
+   - **API 호출에 필요한 모든 정보**
+
+**도구 사용 시:**
+- [api/openapi.json](./api/openapi.json) - Postman/Swagger 임포트
+- [api/tools-guide.md](./api/tools-guide.md) - 도구 활용 방법
+
+---
+
+## 📖 문서 카테고리별 목적
+
+| 폴더 | 목적 | 문서 수 | 대상 |
+|-----|------|---------|------|
+| `frontend/` | 프론트엔드 개발 | 3개 | 프론트엔드 개발자 |
+| `api/` | API 레퍼런스 | 4개 | 모든 개발자 |
+| `backend/` | 백엔드 개발 | 4개 | 백엔드 개발자 |
+| `legacy/` | Legacy 분석 | 5개 | 마이그레이션 담당자 |
+| `design/` | 설계 원칙 | 4개 | 아키텍트 |
+| `scripts/` | 유틸리티 | 2개 | DevOps |
+
+---
+
+## 🔗 주요 문서 바로가기
+
+### 가장 많이 찾는 문서
+
+1. **[QUICKSTART.md](./QUICKSTART.md)** - 5분 빠른 시작
+2. **[frontend/integration-guide.md](./frontend/integration-guide.md)** - 프론트엔드 통합
+3. **[api/reference.md](./api/reference.md)** - API 레퍼런스
+4. **[backend/restful-guide.md](./backend/restful-guide.md)** - 백엔드 개발
+
+### 설정 및 배포
+
+5. **[ENVIRONMENT_VARIABLES.md](./ENVIRONMENT_VARIABLES.md)** - 환경 설정
+6. **[SECURITY_IMPLEMENTATION_COMPLETE.md](./SECURITY_IMPLEMENTATION_COMPLETE.md)** - 보안 구현
+
+### 참고
+
+7. **[CHANGELOG.md](./CHANGELOG.md)** - 변경 이력
+8. **[DOCUMENTATION_RULES.md](./DOCUMENTATION_RULES.md)** 📘 - 문서 작성 규칙
 
 ---
 
 ## 💡 문서 활용 팁
 
-### 기존 개발자라면
-1. **기존 시스템 이해**  
-   `legacy-api-structure.md` 읽기
-   
-2. **새 시스템과 비교**  
-   `api-comparison.md`로 차이점 파악
-   
-3. **마이그레이션 계획**  
-   비교 문서의 마이그레이션 전략 참조
+### 시간이 없다면 (각 역할별 1개 문서만)
 
-### 신규 개발자라면
-1. **RESTful API부터 시작**  
-   `restful-api-guide.md` → `restful-api-structure.md` 순서로 읽기
+- **프론트엔드**: [frontend/integration-guide.md](./frontend/integration-guide.md)
+- **백엔드**: [backend/restful-guide.md](./backend/restful-guide.md)
+- **외부 개발자**: [api/reference.md](./api/reference.md)
 
-2. **기존 시스템 이해**  
-   필요시 `legacy-api-structure.md` 참조
+### 체계적으로 학습하려면
 
-3. **특정 기능 구현 시**  
-   `restful-api-guide.md`에서 해당 섹션 검색
+1. 해당 역할별 폴더의 README.md 읽기
+2. 추천 순서대로 문서 읽기
+3. 예제 코드 실습
+4. 테스트 파일로 확인 ([../tests/api/auth.http](../tests/api/auth.http))
 
-4. **설계 원칙 이해**  
-   `api-design` 문서 참조
+### 문제 해결
 
-5. **심화 학습**  
-   Azure PDF 가이드 참조
+1. FAQ 섹션 확인 (각 문서 하단)
+2. [SECURITY_IMPLEMENTATION_COMPLETE.md](./SECURITY_IMPLEMENTATION_COMPLETE.md) 참고
+3. SQL 샘플 쿼리 확인
 
 ---
 
-## 📮 문의 및 피드백
+## 🔒 v2.0 보안 업데이트 (2025-11-04)
 
-API 프레임워크 관련 질문이나 개선 사항이 있으면 개발팀에 문의해주세요.
+### 신규 보안 기능
+
+- ✅ Refresh Token DB 저장
+- ✅ 토큰 블랙리스트
+- ✅ 동시 로그인 제한
+- ✅ 로그인 이력 추적
+- ✅ 무차별 대입 방지
+
+### 관련 문서
+
+- [frontend/SECURITY_FEATURES.md](./frontend/SECURITY_FEATURES.md) - 프론트엔드 보안 가이드
+- [SECURITY_IMPLEMENTATION_COMPLETE.md](./SECURITY_IMPLEMENTATION_COMPLETE.md) - 구현 상세
+- [ENVIRONMENT_VARIABLES.md](./ENVIRONMENT_VARIABLES.md) - 환경 설정
+
+---
+
+## 📝 문서 업데이트 이력
+
+- **2025-11-04**: 문서 통합 및 간소화 📘
+  - auth-guide.md → integration-guide.md로 통합
+  - implementation-summary.md → SECURITY_FEATURES.md로 통합
+  - FINAL_SUMMARY.md 삭제 (중복)
+  - DOCUMENTATION_RULES.md 추가 (문서 작성 규칙)
+  - 총 문서 수: 30개 → 27개
+  
+- **2025-11-04**: JWT 보안 기능 대폭 강화 🔒 (v2.0)
+  - Refresh Token DB 저장, 토큰 블랙리스트
+  - 동시 로그인 제한, 로그인 이력 추적
+  - DB 스키마 및 3개 모델 추가
+  
+- **2025-11-04**: 문서 구조 대규모 개편 🎯
+  - 6개 카테고리 폴더로 재구성
+  - 각 폴더에 README.md 추가
+
+---
+
+## 📞 지원
+
+### 문서 관련
+- **작성 규칙**: [DOCUMENTATION_RULES.md](./DOCUMENTATION_RULES.md)
+- **문서 구조**: 각 폴더의 README.md 참고
+
+### API 질문
+- **API 스펙**: [api/reference.md](./api/reference.md)
+- **테스트**: [../tests/api/auth.http](../tests/api/auth.http)
+
+### 보안/배포
+- **보안 기능**: [SECURITY_IMPLEMENTATION_COMPLETE.md](./SECURITY_IMPLEMENTATION_COMPLETE.md)
+- **환경 설정**: [ENVIRONMENT_VARIABLES.md](./ENVIRONMENT_VARIABLES.md)
+
+---
+
+**Kelly API로 멋진 애플리케이션을 만드세요! 🚀**
 

@@ -3,6 +3,7 @@
 namespace App\Controllers\Api\V1;
 
 use App\Libraries\RestApi\RestApiController;
+use App\Libraries\RestApi\RestApiResponse;
 
 /**
  * 회원 리소스 API 컨트롤러
@@ -206,22 +207,13 @@ class MembersController extends RestApiController
             ],
         ];
 
-        return $this->respond([
-            'status' => 'success',
-            'data' => $testData,
-            'links' => [
-                [
-                    'rel' => 'self',
-                    'href' => base_url("api/{$this->apiVersion}/members/test"),
-                    'method' => 'GET',
-                ],
-                [
-                    'rel' => 'collection',
-                    'href' => base_url("api/{$this->apiVersion}/members"),
-                    'method' => 'GET',
-                ],
-            ],
-        ]);
+        $links = [
+            RestApiResponse::createLink('self', base_url("api/{$this->apiVersion}/members/test"), 'GET'),
+            RestApiResponse::createLink('collection', base_url("api/{$this->apiVersion}/members"), 'GET'),
+        ];
+
+        $response = RestApiResponse::success($testData, 200, $links);
+        return $this->respond($response, $response['status']);
     }
 }
 
